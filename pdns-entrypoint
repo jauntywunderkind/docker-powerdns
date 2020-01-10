@@ -53,8 +53,8 @@ doConfigure(){
 	local outputDir=$2
 	[ -z "$outputDir" ] && outputDir="$inputDir/conf.d"
 
-	[ -z "$PDNS_CONF_DIRS" ] && PDNS_CONF_DIRS="config,db,secret"
-	for subdir in $(echo "$PDNS_CONF_DIRS" | sed "s/,/ /g")
+	[ -z "$KUBE_ETC" ] && KUBECONF_DIRS="config,db,secret"
+	for subdir in $(echo "$KUBECONF_DIRS" | sed "s/,/ /g")
 	do
 		dir=$inputDir/$subdir
 
@@ -68,7 +68,7 @@ doConfigure(){
 	done
 }
 # immediately invoke
-doConfigure /etc/powerdns
+doConfigure /etc/powerdns/kube /etc/powerdns/conf.d
 
 # Add backward compatibility
 [[ "$MYSQL_AUTOCONF" == false ]] && AUTOCONF=false
