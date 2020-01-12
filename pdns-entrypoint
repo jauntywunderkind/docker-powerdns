@@ -53,10 +53,11 @@ doConfigure(){
 	local outputDir=$2
 	[ -z "$outputDir" ] && outputDir="$inputDir/conf.d"
 
-	[ -z "$KUBE_ETC" ] && KUBECONF_DIRS="config,db,secret"
-	for subdir in $(echo "$KUBECONF_DIRS" | sed "s/,/ /g")
+	[ -z "$KUBE_ETC" ] && KUBE_ETC=/etc/powerdns/kube
+	for subdir in $KUBE_ETC/*
 	do
 		dir=$inputDir/$subdir
+		[ ! -d "$dir" ] && continue
 
 		# write conf files powerdns can read
 		local confd=$(printConfd $dir)
