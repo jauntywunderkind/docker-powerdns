@@ -4,7 +4,7 @@ CREATE TABLE domains (
   master                VARCHAR(128) DEFAULT NULL,
   last_check            INT DEFAULT NULL,
   type                  VARCHAR(6) NOT NULL,
-  notified_serial       INT DEFAULT NULL,
+  notified_serial       BIGINT DEFAULT NULL,
   account               VARCHAR(40) DEFAULT NULL,
   CONSTRAINT c_lowercase_name CHECK (((name)::TEXT = LOWER((name)::TEXT)))
 );
@@ -13,13 +13,14 @@ CREATE UNIQUE INDEX name_index ON domains(name);
 
 
 CREATE TABLE records (
-  id                    SERIAL PRIMARY KEY,
+  id                    BIGSERIAL PRIMARY KEY,
   domain_id             INT DEFAULT NULL,
   name                  VARCHAR(255) DEFAULT NULL,
   type                  VARCHAR(10) DEFAULT NULL,
   content               VARCHAR(65535) DEFAULT NULL,
   ttl                   INT DEFAULT NULL,
   prio                  INT DEFAULT NULL,
+  /* dropped in 4.3 but retaining for posterity/back-compat */
   change_date           INT DEFAULT NULL,
   disabled              BOOL DEFAULT 'f',
   ordername             VARCHAR(255),
@@ -78,6 +79,7 @@ CREATE TABLE cryptokeys (
   domain_id             INT REFERENCES domains(id) ON DELETE CASCADE,
   flags                 INT NOT NULL,
   active                BOOL,
+  published             BOOL DEFAULT TRUE,
   content               TEXT
 );
 
