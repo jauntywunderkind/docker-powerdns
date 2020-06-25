@@ -4,7 +4,7 @@ LABEL \
   MAINTAINERS="jauntywunderkind <jaunty+wunder+kind+dev@voodoowarez.com>",
   CONTRIBUTORS="Christoph Wiechert <wio@psitrax.de>, Mathias Kaufmann <me@stei.gr>, Cloudesire <cloduesire-dev@eng.it>"
 
-VOLUME=["/etc/powerdns/secrets"]
+VOLUME=["/etc/powerdns/secrets", "/etc/powerdns/conf.d"]
 
 ENV REFRESHED_AT="2020-06-15" \
     POWERDNS_VERSION=4.3.0 \
@@ -31,7 +31,7 @@ RUN apk --update add bash libpq sqlite-libs libstdc++ libgcc mariadb-client mari
     ./configure --prefix="" --exec-prefix=/usr \
       --with-modules="bind gmysql gpgsql gsqlite3 lua2" && \
     make && make install-strip && cd / && \
-    mkdir -p /etc/powerdns/conf.d && \
+    mkdir -p /etc/powerdns/conf.d /etc/powerdns/secrets && \
     addgroup -S pdns 2>/dev/null && \
     adduser -S -D -H -h /var/empty -s /bin/false -G pdns -g pdns pdns 2>/dev/null && \
     cp /usr/lib/libboost_program_options.so* /tmp && \
