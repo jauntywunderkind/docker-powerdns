@@ -117,6 +117,16 @@ case "$PDNS_LAUNCH" in
   ;;
 esac
 
+# load secrets into pdns.conf
+for secret in "api-key" "tcp-control-secret" "webserver-password", "gmysql-password", "gpgsql-password"
+do
+  val="$(cat /etc/powerdns/secrets/$secret 2>/dev/null)"
+  [ "g$val" = "g" ] && continue
+
+  [[ -z "$TRACE" ]] || echo "$secret=$val"
+  sed -r -i "s#^[# ]*=.*#$secret=$val#g" /etc/powerdns/pdns.conf
+done
+
 # convert all environment variables prefixed with PDNS_ into pdns config directives
 PDNS_LOAD_MODULES="$(echo $PDNS_LOAD_MODULES | sed 's/^,//')"
 printenv | grep ^PDNS_ | cut -f2- -d_ | while read var; do
@@ -136,5 +146,7 @@ trap "pdns_control quit" SIGHUP SIGINT SIGTERM
 
 # run the server
 pdns_server "$@" &
+
+#tail -f /var/log/powerdns-api.log
 
 wait
