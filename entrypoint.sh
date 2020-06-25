@@ -88,9 +88,9 @@ case "$PDNS_LAUNCH" in
     MYSQLCMD="$MYSQLCMD $MYSQL_DB"
     if [ "$(echo "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = \"$MYSQL_DB\";" | $MYSQLCMD)" -le 1 ]; then
       echo Initializing Database
-      cat /etc/pdns/mysql.schema.sql | $MYSQLCMD
+      cat /etc/powerdns/mysql.schema.sql | $MYSQLCMD
       # Run custom mysql post-init sql scripts
-      if [ -d "/etc/pdns/mysql-postinit" ]; then
+      if [ -d "/etc/powerdns/mysql-postinit" ]; then
         for SQLFILE in $(ls -1 /etc/pdns/mysql-postinit/*.sql | sort) ; do
           echo Source $SQLFILE
           cat $SQLFILE | $MYSQLCMD
@@ -105,13 +105,13 @@ case "$PDNS_LAUNCH" in
     PGSQLCMD="$PGSQLCMD $PGSQL_DB"
     if [[ -z "$(printf '\dt' | $PGSQLCMD -qAt)" ]]; then
       echo Initializing Database
-      cat /etc/pdns/pgsql.schema.sql | $PGSQLCMD
+      cat /etc/powerdns/pgsql.schema.sql | $PGSQLCMD
     fi
   ;;
   gsqlite3)
     if [[ ! -f "$PDNS_GSQLITE3_DATABASE" ]]; then
       install -D -d -o pdns -g pdns -m 0755 $(dirname $PDNS_GSQLITE3_DATABASE)
-      cat /etc/pdns/sqlite3.schema.sql | sqlite3 $PDNS_GSQLITE3_DATABASE
+      cat /etc/powerdns/sqlite3.schema.sql | sqlite3 $PDNS_GSQLITE3_DATABASE
       chown pdns:pdns $PDNS_GSQLITE3_DATABASE
     fi
   ;;
@@ -124,7 +124,7 @@ printenv | grep ^PDNS_ | cut -f2- -d_ | while read var; do
   var="${var%%=*}"
   var="$(echo $var | sed -e 's/_/-/g' | tr '[:upper:]' '[:lower:]')"
   [[ -z "$TRACE" ]] || echo "$var=$val"
-  sed -r -i "s#^[# ]*$var=.*#$var=$val#g" /etc/pdns/pdns.conf
+  sed -r -i "s#^[# ]*$var=.*#$var=$val#g" /etc/powerdns/pdns.conf
 done
 
 # environment hygiene
