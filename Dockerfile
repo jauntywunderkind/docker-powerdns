@@ -1,10 +1,10 @@
 FROM alpine:3.12
 
 LABEL \
-  MAINTAINERS="jauntywunderkind <jaunty+wunder+kind+dev@voodoowarez.com>",
+  MAINTAINERS="jauntywunderkind <jaunty+wunder+kind+dev@voodoowarez.com>" \
   CONTRIBUTORS="Christoph Wiechert <wio@psitrax.de>, Mathias Kaufmann <me@stei.gr>, Cloudesire <cloduesire-dev@eng.it>"
 
-VOLUME=["/etc/powerdns/secrets", "/etc/powerdns/conf.d"]
+VOLUME ["/etc/powerdns/secrets", "/etc/powerdns/conf.d"]
 
 ENV REFRESHED_AT="2020-06-15" \
     POWERDNS_VERSION=4.3.0 \
