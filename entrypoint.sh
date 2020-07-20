@@ -118,7 +118,7 @@ case "$PDNS_LAUNCH" in
 esac
 
 # load secrets into pdns.conf
-for secret in "api-key" "tcp-control-secret" "webserver-password", "gmysql-password", "gpgsql-password"
+for secret in "api-key" "tcp-control-secret" "webserver-password" "gmysql-password" "gpgsql-password"
 do
   val="$(cat /etc/powerdns/secrets/$secret 2>/dev/null)"
   [ "g$val" = "g" ] && continue

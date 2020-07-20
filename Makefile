@@ -6,6 +6,4 @@ docker:
 docker-push:
 	docker push rektide/powerdns:latest
 
-
 all: docker
-

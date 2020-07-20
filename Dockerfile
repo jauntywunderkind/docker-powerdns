@@ -25,7 +25,7 @@ ENV REFRESHED_AT="2020-07-4" \
 # via https://github.com/psi-4ward/docker-powerdns/blob/9660fe5c361d90e853705626657006b3755ade72/Dockerfile
 RUN apk --update add bash libpq sqlite-libs libstdc++ libgcc mariadb-client mariadb-connector-c lua-dev curl-dev && \
     apk add --virtual build-deps \
-      g++ make mariadb-dev postgresql-dev sqlite-dev curl boost-dev mariadb-connector-c-dev && \
+    g++ make mariadb-dev postgresql-dev sqlite-dev curl boost-dev mariadb-connector-c-dev && \
     curl -sSL https://downloads.powerdns.com/releases/pdns-$POWERDNS_VERSION.tar.bz2 | tar xj -C /tmp && \
     cd /tmp/pdns-$POWERDNS_VERSION && \
     ./configure --prefix="" --exec-prefix=/usr \
@@ -37,7 +37,8 @@ RUN apk --update add bash libpq sqlite-libs libstdc++ libgcc mariadb-client mari
     cp /usr/lib/libboost_program_options.so* /tmp && \
     apk del --purge build-deps && \
     mv /tmp/lib* /usr/lib/ && \
-    rm -rf /tmp/pdns-$POWERDNS_VERSION /var/cache/apk/*
+    rm -rf /tmp/pdns-$POWERDNS_VERSION /var/cache/apk/* \
+    ln -f /etc/powerdns/pdns.conf /etc/pdns.conf
 
 ADD sql/ pdns.conf /etc/powerdns/
 ADD entrypoint.sh /bin/
