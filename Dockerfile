@@ -23,7 +23,7 @@ ENV REFRESHED_AT="2020-07-4" \
     SQLITE_DB="pdns.sqlite3"
 
 # via https://github.com/psi-4ward/docker-powerdns/blob/9660fe5c361d90e853705626657006b3755ade72/Dockerfile
-RUN apk --update add bash libpq sqlite-libs libstdc++ libgcc mariadb-client mariadb-connector-c lua-dev curl-dev && \
+RUN apk --update add bash libpq sqlite-libs libstdc++ libgcc mariadb-client mariadb-connector-c lua-dev curl-dev postgresql-client sqlite && \
     apk add --virtual build-deps \
     g++ make mariadb-dev postgresql-dev sqlite-dev curl boost-dev mariadb-connector-c-dev && \
     curl -sSL https://downloads.powerdns.com/releases/pdns-$POWERDNS_VERSION.tar.bz2 | tar xj -C /tmp && \
