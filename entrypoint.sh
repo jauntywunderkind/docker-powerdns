@@ -9,6 +9,34 @@ set -e
 # treat everything except -- as exec cmd
 [ "${1:0:2}" != "--" ] && exec "$@"
 
+# load configmap/secrets
+confdir(){
+	dir="/etc/powerdns/$1"
+	cd $dir
+
+	# write pdns standard config file
+	for key in *
+	do
+		val="$(cat $key)"
+		echo "$key=$(cat $value)" >> /etc/powerdns/conf.d/$1.conf
+
+		# read db settings into env-vars so we can init databases
+		if [[ $key = gmysql* ]] || [[ $key = gpgsql*]]
+		then
+			# convert to VARIABLE_FORMAT
+			keyUp=$(echo $key | tr '[a-z-]' '[A-Z_]')
+			# drop leading "g"
+			export ${keyUp:1}="${value}"
+		fi
+	done
+}
+
+[ -z "$PDNS_CONF_DIRS" ] && PDNS_CONF_DIRS="config,db,secret"
+for dir in $(echo "$PDNS_CONF_DIRS" | sed "s/,/ /g")
+do
+	confdir $dir
+done
+
 # Add backward compatibility
 [[ "$MYSQL_AUTOCONF" == false ]] && AUTOCONF=false
 
@@ -116,25 +144,6 @@ case "$PDNS_LAUNCH" in
     fi
   ;;
 esac
-
-confdir(){
-	dir="/etc/powerdns/$1"
-
-	echo
-	find $dir -type f -print -exec cat {} \;
-
-	cd $dir
-	for key in *
-	do
-		echo "$key=$(cat $key)" >> /etc/powerdns/conf.d/$1.conf
-	done
-}
-
-[ -z "$PDNS_CONF_DIRS" ] && PDNS_CONF_DIRS="config,db,secret"
-for dir in $(echo "$PDNS_CONF_DIRS" | sed "s/,/ /g")
-do
-	confdir $dir
-done
 
 # convert all environment variables prefixed with PDNS_ into pdns config directives
 PDNS_LOAD_MODULES="$(echo $PDNS_LOAD_MODULES | sed 's/^,//')"
