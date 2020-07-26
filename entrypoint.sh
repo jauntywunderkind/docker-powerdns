@@ -117,14 +117,23 @@ case "$PDNS_LAUNCH" in
   ;;
 esac
 
-# load secrets into pdns.conf
-for secret in "api-key" "tcp-control-secret" "webserver-password" "gmysql-password" "gpgsql-password"
-do
-  val="$(cat /etc/powerdns/secrets/$secret 2>/dev/null)"
-  [ "g$val" = "g" ] && continue
+confdir(){
+	dir="/etc/powerdns/$1"
 
-  [[ -z "$TRACE" ]] || echo "$secret=$val"
-  sed -r -i "s#^[# ]*=.*#$secret=$val#g" /etc/powerdns/pdns.conf
+	echo
+	find $dir -type f -print -exec cat {} \;
+
+	cd $dir
+	for key in *
+	do
+		echo "$key=$(cat $key)" >> /etc/powerdns/conf.d/$1.conf
+	done
+}
+
+[ -z "$PDNS_CONF_DIRS" ] && PDNS_CONF_DIRS="config,db,secret"
+for dir in $(echo "$PDNS_CONF_DIRS" | sed "s/,/ /g")
+do
+	confdir $dir
 done
 
 # convert all environment variables prefixed with PDNS_ into pdns config directives
