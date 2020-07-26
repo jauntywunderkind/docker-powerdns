@@ -21,7 +21,7 @@ confdir(){
 		echo "$key=$(cat $value)" >> /etc/powerdns/conf.d/$1.conf
 
 		# read db settings into env-vars so we can init databases
-		if [[ $key = gmysql* ]] || [[ $key = gpgsql*]]
+		if [[ $key = gmysql* ]] || [[ $key = gpgsql*]] || [[ $key = gsqlite* ]]
 		then
 			# convert to VARIABLE_FORMAT
 			keyUp=$(echo $key | tr '[a-z-]' '[A-Z_]')
@@ -49,24 +49,24 @@ case "$AUTOCONF" in
     export PDNS_GMYSQL_PORT=${PDNS_GMYSQL_PORT:-$MYSQL_PORT}
     export PDNS_GMYSQL_USER=${PDNS_GMYSQL_USER:-$MYSQL_USER}
     export PDNS_GMYSQL_PASSWORD=${PDNS_GMYSQL_PASSWORD:-$MYSQL_PASS}
-    export PDNS_GMYSQL_DBNAME=${PDNS_GMYSQL_DBNAME:-$MYSQL_DB}
+    export PDNS_GMYSQL_DBNAME=${PDNS_GMYSQL_DBNAME:-$MYSQL_DBNAME}
     export PDNS_GMYSQL_DNSSEC=${PDNS_GMYSQL_DNSSEC:-$MYSQL_DNSSEC}
   ;;
   postgres)
     export PDNS_LOAD_MODULES=$PDNS_LOAD_MODULES,libgpgsqlbackend.so
-    export PDNS_LAUNCH=gpgsql
+    export PDNS_LAUNCH=${PDNS_LAUNCH:-gpgsql}
     export PDNS_GPGSQL_HOST=${PDNS_GPGSQL_HOST:-$PGSQL_HOST}
     export PDNS_GPGSQL_PORT=${PDNS_GPGSQL_PORT:-$PGSQL_PORT}
     export PDNS_GPGSQL_USER=${PDNS_GPGSQL_USER:-$PGSQL_USER}
     export PDNS_GPGSQL_PASSWORD=${PDNS_GPGSQL_PASSWORD:-$PGSQL_PASS}
-    export PDNS_GPGSQL_DBNAME=${PDNS_GPGSQL_DBNAME:-$PGSQL_DB}
+    export PDNS_GPGSQL_DBNAME=${PDNS_GPGSQL_DBNAME:-$PGSQL_DBNAME}
     export PDNS_GPGSQL_DNSSEC=${PDNS_GPGSQL_DNSSEC:-$PGSQL_DNSSEC}
     export PGPASSWORD=$PDNS_GPGSQL_PASSWORD
   ;;
   sqlite)
     export PDNS_LOAD_MODULES=$PDNS_LOAD_MODULES,libgsqlite3backend.so
     export PDNS_LAUNCH=gsqlite3
-    export PDNS_GSQLITE3_DATABASE=${PDNS_GSQLITE3_DATABASE:-$SQLITE_DB}
+    export PDNS_GSQLITE3_DATABASE=${PDNS_GSQLITE3_DATABASE:-$SQLITE_DBNAME}
     export PDNS_GSQLITE3_PRAGMA_SYNCHRONOUS=${PDNS_GSQLITE3_PRAGMA_SYNCHRONOUS:-$SQLITE_PRAGMA_SYNCHRONOUS}
     export PDNS_GSQLITE3_PRAGMA_FOREIGN_KEYS=${PDNS_GSQLITE3_PRAGMA_FOREIGN_KEYS:-$SQLITE_PRAGMA_FOREIGN_KEYS}
     export PDNS_GSQLITE3_DNSSEC=${PDNS_GSQLITE3_DNSSEC:-$SQLITE_DNSSEC}
@@ -74,7 +74,7 @@ case "$AUTOCONF" in
 esac
 
 MYSQLCMD="mysql -h $MYSQL_HOST -u $MYSQL_USER -p$MYSQL_PASS -r -N"
-PGSQLCMD="psql --host=$PGSQL_HOST --username=$PGSQL_USER"
+PGSQLCMD="psql --host=$PGSQL_HOST --username=$PGSQL_USER --port=${PGSQL_PORT:-5432}"
 
 # wait for Database come ready
 isDBup () {
@@ -112,9 +112,9 @@ fi
 # init database and migrate database if necessary
 case "$PDNS_LAUNCH" in
   gmysql)
-    echo "CREATE DATABASE IF NOT EXISTS $MYSQL_DB;" | $MYSQLCMD
-    MYSQLCMD="$MYSQLCMD $MYSQL_DB"
-    if [ "$(echo "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = \"$MYSQL_DB\";" | $MYSQLCMD)" -le 1 ]; then
+    echo "CREATE DATABASE IF NOT EXISTS $MYSQL_DBNAME;" | $MYSQLCMD
+    MYSQLCMD="$MYSQLCMD $MYSQL_DBNAME"
+    if [ "$(echo "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = \"$MYSQL_DBNAME\";" | $MYSQLCMD)" -le 1 ]; then
       echo Initializing Database
       cat /etc/powerdns/mysql.schema.sql | $MYSQLCMD
       # Run custom mysql post-init sql scripts
@@ -127,10 +127,10 @@ case "$PDNS_LAUNCH" in
     fi
   ;;
   gpgsql)
-    if [[ -z "$(echo "SELECT 1 FROM pg_database WHERE datname = '$PGSQL_DB'" | $PGSQLCMD -t)" ]]; then
-      echo "CREATE DATABASE $PGSQL_DB;" | $PGSQLCMD
+    if [[ -z "$(echo "SELECT 1 FROM pg_database WHERE datname = '$PGSQL_DBNAME'" | $PGSQLCMD -t)" ]]; then
+      echo "CREATE DATABASE $PGSQL_DBNAME;" | $PGSQLCMD
     fi
-    PGSQLCMD="$PGSQLCMD $PGSQL_DB"
+    PGSQLCMD="$PGSQLCMD $PGSQL_DBNAME"
     if [[ -z "$(printf '\dt' | $PGSQLCMD -qAt)" ]]; then
       echo Initializing Database
       cat /etc/powerdns/pgsql.schema.sql | $PGSQLCMD
