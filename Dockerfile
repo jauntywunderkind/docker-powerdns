@@ -4,7 +4,7 @@ LABEL \
   MAINTAINERS="jauntywunderkind <jaunty+wunder+kind+dev@voodoowarez.com>" \
   CONTRIBUTORS="Christoph Wiechert <wio@psitrax.de>, Mathias Kaufmann <me@stei.gr>, Cloudesire <cloduesire-dev@eng.it>"
 
-VOLUME ["/etc/powerdns/config", "/etc/powerdns/conf.d", "/etc/powerdns/db", "/etc/powerdns/secret"]
+VOLUME ["/etc/powerdns/config", "/etc/powerdns/db", "/etc/powerdns/secret"]
 
 ENV REFRESHED_AT="2020-07-4" \
     POWERDNS_VERSION=4.3.0 \
@@ -37,8 +37,8 @@ RUN apk --update add bash libpq sqlite-libs libstdc++ libgcc mariadb-client mari
     cp /usr/lib/libboost_program_options.so* /tmp && \
     apk del --purge build-deps && \
     mv /tmp/lib* /usr/lib/ && \
-    rm -rf /tmp/pdns-$POWERDNS_VERSION /var/cache/apk/* \
-    ln -f /etc/powerdns/pdns.conf /etc/pdns.conf
+    rm -rf /tmp/pdns-$POWERDNS_VERSION /var/cache/apk/* && \
+    ln -sf /etc/powerdns/pdns.conf /etc/pdns.conf
 
 ADD sql/ pdns.conf /etc/powerdns/
 ADD entrypoint.sh /bin/
