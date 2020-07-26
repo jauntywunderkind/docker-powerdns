@@ -84,6 +84,7 @@ isDBup () {
       echo $?
     ;;
     gpgsql)
+      echo "$PGSQL_HOST:$PGSQL_PORT:$PGSQL_DBNAME:$PGSQL_USER:$PGSQL_PASSWORD" > ~/.pgpass
       echo "SELECT 1" | $PGSQLCMD 1>/dev/null
       echo $?
     ;;
@@ -135,6 +136,7 @@ case "$PDNS_LAUNCH" in
       echo Initializing Database
       cat /etc/powerdns/pgsql.schema.sql | $PGSQLCMD
     fi
+    rm ~/.pgpass
   ;;
   gsqlite3)
     if [[ ! -f "$PDNS_GSQLITE3_DATABASE" ]]; then
