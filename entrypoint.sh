@@ -163,6 +163,12 @@ done
 for var in $(printenv | cut -f1 -d= | grep -v -e HOME -e USER -e PATH ); do unset $var; done
 export TZ=UTC LANG=C LC_ALL=C
 
+# create zones
+for zone in $(echo "$PDNS_ZONES" | sed "s/,/ /g")
+do
+	pdnsutil -v create-zone $zone
+done
+
 # prepare graceful shutdown
 trap "pdns_control quit" SIGHUP SIGINT SIGTERM
 
