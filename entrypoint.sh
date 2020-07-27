@@ -18,15 +18,16 @@ confdir(){
 	for key in *
 	do
 		val="$(cat $key)"
-		echo "$key=$(cat $value)" >> /etc/powerdns/conf.d/$1.conf
+		echo "$key=$(cat $val)" >> /etc/powerdns/conf.d/$1.conf
 
 		# read db settings into env-vars so we can init databases
-		if [[ $key = gmysql* ]] || [[ $key = gpgsql*]] || [[ $key = gsqlite* ]]
+		k6="${key:0:6}"
+		if [[ $k6 = gmysql ]] || [[ $k6 = gpgsql ]] || [[ $k6 = gsqlit ]]
 		then
 			# convert to VARIABLE_FORMAT
 			keyUp=$(echo $key | tr '[a-z-]' '[A-Z_]')
 			# drop leading "g"
-			export ${keyUp:1}="${value}"
+			export ${keyUp:1}="${val}"
 		fi
 	done
 }
@@ -85,6 +86,7 @@ isDBup () {
     ;;
     gpgsql)
       echo "$PGSQL_HOST:$PGSQL_PORT:$PGSQL_DBNAME:$PGSQL_USER:$PGSQL_PASSWORD" > ~/.pgpass
+      chmod 0600 ~/.pgpass
       echo "SELECT 1" | $PGSQLCMD 1>/dev/null
       echo $?
     ;;

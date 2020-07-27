@@ -3,7 +3,7 @@
 docker:
 	docker build -t rektide/powerdns:latest .
 
-docker-push:
+push:
 	docker push rektide/powerdns:latest
 
 all: docker
