@@ -18,7 +18,7 @@ confdir(){
 	for key in *
 	do
 		val="$(cat $key)"
-		echo "$key=$(cat $val)" >> /etc/powerdns/conf.d/$1.conf
+		echo "$key=$val" >> /etc/powerdns/conf.d/$1.conf
 
 		# read db settings into env-vars so we can init databases
 		k6="${key:0:6}"
@@ -26,7 +26,7 @@ confdir(){
 		then
 			# convert to VARIABLE_FORMAT
 			keyUp=$(echo $key | tr '[a-z-]' '[A-Z_]')
-			# drop leading "g"
+			# drop leading "g" and export
 			export ${keyUp:1}="${val}"
 		fi
 	done
@@ -75,7 +75,7 @@ case "$AUTOCONF" in
 esac
 
 MYSQLCMD="mysql -h $MYSQL_HOST -u $MYSQL_USER -p$MYSQL_PASS -r -N"
-PGSQLCMD="psql --host=$PGSQL_HOST --username=$PGSQL_USER --port=${PGSQL_PORT:-5432}"
+PGSQLCMD="psql --host=$PGSQL_HOST --username=$PGSQL_USER --port=${PGSQL_PORT:-5432} ${PGSQL_DBNAME}"
 
 # wait for Database come ready
 isDBup () {
@@ -133,7 +133,7 @@ case "$PDNS_LAUNCH" in
     if [[ -z "$(echo "SELECT 1 FROM pg_database WHERE datname = '$PGSQL_DBNAME'" | $PGSQLCMD -t)" ]]; then
       echo "CREATE DATABASE $PGSQL_DBNAME;" | $PGSQLCMD
     fi
-    PGSQLCMD="$PGSQLCMD $PGSQL_DBNAME"
+    #PGSQLCMD="$PGSQLCMD $PGSQL_DBNAME"
     if [[ -z "$(printf '\dt' | $PGSQLCMD -qAt)" ]]; then
       echo Initializing Database
       cat /etc/powerdns/pgsql.schema.sql | $PGSQLCMD
@@ -168,7 +168,5 @@ trap "pdns_control quit" SIGHUP SIGINT SIGTERM
 
 # run the server
 pdns_server "$@" &
-
-#tail -f /var/log/powerdns-api.log
 
 wait
