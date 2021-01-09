@@ -7,7 +7,7 @@ LABEL \
 VOLUME ["/etc/powerdns/config", "/etc/powerdns/db", "/etc/powerdns/secret"]
 
 ENV REFRESHED_AT="2020-07-4" \
-    POWERDNS_VERSION=4.3.0 \
+    POWERDNS_VERSION=4.4.0 \
     AUTOCONF=pgsql \
     MYSQL_HOST="mysql" \
     MYSQL_PORT="3306" \
