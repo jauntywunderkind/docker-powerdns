@@ -9,39 +9,73 @@ set -e
 # treat everything except -- as exec cmd
 [ "${1:0:2}" != "--" ] && exec "$@"
 
-# load configmap/secrets
-confdir(){
-	dir="/etc/powerdns/$1"
-	cd $dir
+# print a given key-value directory as key=value , typically used for turning /etc/my-service/foo dir into /etc/my-service/conf.d/foo.conf file
+printConfd(){
+    dir="$1"
 
-	# write pdns standard config file
-	for key in *
+	# for each env key
+	for key in $dir/*
 	do
-		val="$(cat $key)"
-		echo "$key=$val" >> /etc/powerdns/conf.d/$1.conf
+		# skip directories. TODO: skip directories?
+		[ -d $dir/$key ] && continue
 
-		# read db settings into env-vars so we can init databases
+		# echo the key=value for pdns etc file, typically /etc/powerdns/conf.d/$1.conf
+		val="$(cat $dir/$key)"
+		echo "$key=$val"
+	done
+}
+
+# print a given key-value directory as `export KEY=value`
+# TODO: would it be better to parse/filter/transform printConfd
+printEnv(){
+	dir="$1"
+
+	for key in $dir/*
+	do
+		# for the init tools, read gsomedb conf elements into this shell's env
 		k6="${key:0:6}"
+		val="$(cat $dir/$key)"
+
 		if [[ $k6 = gmysql ]] || [[ $k6 = gpgsql ]] || [[ $k6 = gsqlit ]]
 		then
 			# convert to VARIABLE_FORMAT
 			keyUp=$(echo $key | tr '[a-z-]' '[A-Z_]')
 			# drop leading "g" and export
-			export ${keyUp:1}="${val}"
+			echo export ${keyUp:1}=\"${val}\"
 		fi
 	done
 }
 
-[ -z "$PDNS_CONF_DIRS" ] && PDNS_CONF_DIRS="config,db,secret"
-for dir in $(echo "$PDNS_CONF_DIRS" | sed "s/,/ /g")
-do
-	confdir $dir
-done
+# ingest the kubernetes style secret/config directories
+doConfigure(){
+	local inputDir=$1
+	local outputDir=$2
+	[ -z "$outputDir" ] && outputDir="$inputDir/conf.d"
+
+	[ -z "$PDNS_CONF_DIRS" ] && PDNS_CONF_DIRS="config,db,secret"
+	for subdir in $(echo "$PDNS_CONF_DIRS" | sed "s/,/ /g")
+	do
+		dir=$inputDir/$subdir
+
+		# write conf files powerdns can read
+		local confd=$(printConfd $dir)
+		echo $confd > $outputDir/$dir.conf
+
+		# some init scripts require env vars (db related) to run, load that env
+		local envs=$(printConfd $dir)
+		eval $envs
+	done
+}
+# immediately invoke
+doConfigure /etc/powerdns
 
 # Add backward compatibility
 [[ "$MYSQL_AUTOCONF" == false ]] && AUTOCONF=false
 
 # Set credentials to be imported into pdns.conf
+# TODO: whoa partner, what the heck? why do these have defaults
+#  but then we use the undefaulted edition when talking to db's?
+#  i feel like the init tools ought have the same chance as the run tools
 case "$AUTOCONF" in
   mysql)
     export PDNS_LOAD_MODULES=$PDNS_LOAD_MODULES,libgmysqlbackend.so
@@ -131,9 +165,10 @@ case "$PDNS_LAUNCH" in
   ;;
   gpgsql)
     if [[ -z "$(echo "SELECT 1 FROM pg_database WHERE datname = '$PGSQL_DBNAME'" | $PGSQLCMD -t)" ]]; then
+      echo "Database did not exist, creating"
       echo "CREATE DATABASE $PGSQL_DBNAME;" | $PGSQLCMD
     fi
-    #PGSQLCMD="$PGSQLCMD $PGSQL_DBNAME"
+    PGSQLCMD="$PGSQLCMD $PGSQL_DBNAME"
     if [[ -z "$(printf '\dt' | $PGSQLCMD -qAt)" ]]; then
       echo Initializing Database
       cat /etc/powerdns/pgsql.schema.sql | $PGSQLCMD
