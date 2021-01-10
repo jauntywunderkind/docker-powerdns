@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# TODO: where do we really want to draw config from? everywhere? one place? not certain
+
+exec psql --host=$PGSQL_HOST --username=$PGSQL_USER --port=${PGSQL_PORT:-5432}

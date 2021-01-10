@@ -36,6 +36,7 @@ printEnv(){
 		k6="${key:0:6}"
 		val="$(cat $dir/$key)"
 
+		# gsqlite is 7 characters, but k6 is only 6, which is what we are checking against
 		if [[ $k6 = gmysql ]] || [[ $k6 = gpgsql ]] || [[ $k6 = gsqlit ]]
 		then
 			# convert to VARIABLE_FORMAT

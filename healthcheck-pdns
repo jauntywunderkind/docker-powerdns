@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# TODO: ideally we would env-source all kubernetes style config and then source all conf.d/*.conf files, if expected envs not found
+
+[ -z "$WEBSERVER_PASSWORD_FILE" ] && export WEBSERVER_PASSWORD_FILE=/etc/powerdns/secret/webserver-password
+[ -z "$WEBSERVER_PASSWORD" ] && export WEBSERVER_PASSWORD=$(cat $WEBSERVER_PASSWORD_FILE)
+# TODO we could try to read this out of config files
+[ -z "$WEBSERVER_PORT" ] && export WEBSERVER_PORT=80
+
+# check webserver
+exec curl --fail -u#${WEBSERVER_PASSWORD} http://localhost:80
