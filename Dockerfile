@@ -8,6 +8,7 @@ VOLUME ["/etc/powerdns/kube/config", "/etc/powerdns/kube/db", "/etc/powerdns/kub
 
 ENV REFRESHED_AT="2020-1-9" \
     POWERDNS_VERSION=4.4.0 \
+    KUBE_ETC=/etc/powerdns/kube \
     AUTOCONF=pgsql \
     MYSQL_HOST="mysql" \
     MYSQL_PORT="3306" \
@@ -22,7 +23,9 @@ ENV REFRESHED_AT="2020-1-9" \
     PGSQL_DB="pdns" \
     SQLITE_DB="pdns.sqlite3"
 
-ADD sql/ pdns.conf pdns-entrypoint pdns-healthcheck pdns-psql pdns-curl pdns-pg-preseed /opt/docker-powerdns
+ADD sql/ pdns.conf pdns-entrypoint pdns-healthcheck pdns-healthcheck-pg pdns-psql pdns-curl pdns-preseed-etc pdns-preseed-pg /opt/docker-powerdns/
+EXPOSE 53/tcp 53/udp 53000/tcp 80/tcp
+ENTRYPOINT ["pdns-entrypoint"]
 
 # via https://github.com/psi-4ward/docker-powerdns/blob/9660fe5c361d90e853705626657006b3755ade72/Dockerfile
 RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client mariadb-connector-c lua-dev curl-dev postgresql-client sqlite && \
@@ -43,6 +46,3 @@ RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client
     ln -s /opt/docker-powerdns/pdns.conf /etc/powerdns/pdns.conf && \
     ln -s /opt/docker-powerdns/pdns-* /bin/
 
-EXPOSE 53/tcp 53/udp 53000/tcp 80/tcp
-
-ENTRYPOINT ["pdns-entrypoint"]
