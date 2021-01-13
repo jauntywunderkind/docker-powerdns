@@ -8,11 +8,11 @@ getVar(){
 	[ -n "$2" ] && echo $2
 }
 
-connString(){
+# build a connection string from kube configuration
+pgConnString(){
 	local extra="$(getVar gpgsql-extra-connection-parameters)"
 	[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g')
 	echo "postgresql://$(getVar gpgsql-user):$(getVar gpgsql-password)@$(getVar gpgsql-host):$(getVar gpgsql-port 5432)/$(getVar gpgsql-dbname)?$extra"
 }
 
-connString
-#exec psql $(connString) $*
+exec psql $(pgConnString) $*
