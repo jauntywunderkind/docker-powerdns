@@ -2,7 +2,7 @@
 
 # print a kubernetes directory as an env file
 pdnsKubeEtc(){
-	local dir="${1-$(cwd)}" # full path or relative
+	local dir="${1-$(pwd)}" # full path or relative
 	local prefix="${2+"$2."}"
 	local exp="${AS_EXPORT+'export '}"
 	local q="${AS_QUOTED_VALUE+\'}"

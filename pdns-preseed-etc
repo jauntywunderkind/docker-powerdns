@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -e
+set -x
+
+pdnsPreseedEtc(){
+	local dir="${1:-${PDNS_KUBE_ETC_DIR:-$(pwd)}}"
+	local confd="${PDNS_CONFD_DIR:-/etc/powerdns/conf.d}"
+
+	for entry in $dir/*
+	do
+		local key="$(basename $entry)"
+		echo RUNNING $key $entry
+		pdns-kube-etc "$entry" > "$confd/$key.conf"
+	done
+}
+pdnsPreseedEtc $*
