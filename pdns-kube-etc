@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# print a kubernetes directory as an env file
+pdnsKubeEtc(){
+	local dir="${1-$(cwd)}" # full path or relative
+	local prefix="${2+"$2."}"
+	local exp="${AS_EXPORT+'export '}"
+	local q="${AS_QUOTED_VALUE+\'}"
+
+	# for each env key
+	for entry in $dir/*
+	do
+		local key="$(basename $entry)"
+
+		# not a part of kube afaik but support subdirs
+		if [ -d "$entry" ] ; then
+			pdnsKubeEtc "$entry" "$prefix$key"
+			continue
+		fi
+
+		# echo the key=value for pdns etc file, typically /etc/powerdns/conf.d/$1.conf
+		# prefix with "export " if AS_EXPORT is set
+		val="$(cat $entry)"
+		# full-size example
+		# export subdir1.subdir2.key="value"
+		echo "$exp$prefix$key=$q$val$q"
+	done
+}
+
+pdnsKubeEtc $*
