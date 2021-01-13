@@ -4,7 +4,7 @@ set -e
 set -x
 
 pdnsPreseedEtc(){
-	local dir="${1:-${PDNS_KUBE_ETC_DIR:-$(pwd)}}"
+	local dir="${1:-${PDNS_KUBE_ETC_DIRS:-$(pwd)}}"
 	local confd="${PDNS_CONFD_DIR:-/etc/powerdns/conf.d}"
 
 	for entry in $dir/*

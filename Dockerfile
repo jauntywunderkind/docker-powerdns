@@ -8,7 +8,8 @@ VOLUME ["/etc/powerdns/kube/config", "/etc/powerdns/kube/db", "/etc/powerdns/kub
 
 ENV REFRESHED_AT="2020-1-9" \
     POWERDNS_VERSION=4.4.0 \
-    PDNS_KUBE_ETC_DIR=/etc/powerdns/kube \
+	PDNS_ETC_FILE=/etc/powerdns/pdns.conf \
+    PDNS_KUBE_ETC_DIRS=/etc/powerdns/kube \
 	PDNS_CONFD_DIR=/etc/powerdns/conf.d \
     AUTOCONF=pgsql \
     MYSQL_HOST="mysql" \
@@ -37,7 +38,7 @@ RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client
     ./configure --prefix="" --exec-prefix=/usr \
       --with-modules="bind gmysql gpgsql gsqlite3 lua2" && \
     make && make install-strip && cd / && \
-    mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIR && \
+    mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
     addgroup -S pdns 2>/dev/null && \
     adduser -S -D -H -h /var/empty -s /bin/false -G pdns -g pdns pdns 2>/dev/null && \
     cp /usr/lib/libboost_program_options.so* /tmp && \

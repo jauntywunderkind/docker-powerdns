@@ -10,20 +10,6 @@ set -e
 [ "${1:0:2}" != "--" ] && exec "$@"
 
 # print a given key-value directory as key=value , typically used for turning /etc/my-service/foo dir into /etc/my-service/conf.d/foo.conf file
-printConfd(){
-    dir="$1"
-
-	# for each env key
-	for key in $dir/*
-	do
-		# skip directories. TODO: skip directories?
-		[ -d $dir/$key ] && continue
-
-		# echo the key=value for pdns etc file, typically /etc/powerdns/conf.d/$1.conf
-		val="$(cat $dir/$key)"
-		echo "$key=$val"
-	done
-}
 
 # print a given key-value directory as `export KEY=value`
 # TODO: would it be better to parse/filter/transform printConfd
