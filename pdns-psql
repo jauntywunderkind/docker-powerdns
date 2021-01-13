@@ -1,15 +1,18 @@
 #!/bin/sh
 
-set -e
-set -x
-
-getEnv(){
-	local confs="$(grep -h gpgsql /etc/powerdns/pdns.conf $PDNS_CONFD_DIR/*conf 2>/dev/null)"
-
-	printf "%s\n" "$confs" | while IFS= read -r line
-	do
-		echo line $line
-	done 
+# get a variable from kube
+getVar(){
+	for dir in ${PDNS_KUBE_ETC_DIR}/* ; do
+		[ -e $dir/$1 ] && cat $dir/$1 && return
+	done
+	[ -n "$2" ] && echo $2
 }
 
-getEnv
+connString(){
+	local extra="$(getVar gpgsql-extra-connection-parameters)"
+	[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g')
+	echo "postgresql://$(getVar gpgsql-user):$(getVar gpgsql-password)@$(getVar gpgsql-host):$(getVar gpgsql-port 5432)/$(getVar gpgsql-dbname)?$extra"
+}
+
+connString
+#exec psql $(connString) $*
