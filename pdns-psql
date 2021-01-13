@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e
+set -x
 
 # print all pdns config
 pdnsVars(){
@@ -33,7 +35,7 @@ getVar(){
 
 # build a connection string from kube configuration
 pgConnString(){
-	local p=$(pdnsVars)
+	local pv="$(pdnsVars)"
 	local user="$(getVar gpgsql-user "$pv")"
 	local password="$(getVar gpgsql-password "$pv")"
 	local host="$(getVar gpgsql-host "$pv")"
