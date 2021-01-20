@@ -3,25 +3,27 @@
 source pdns-script-helpers
 
 pgConn(){
-	local host="$(getVar gpgsql-host "$pv")"
-	local port="$(getVar gpgsql-port "$pv" 5432)"
-	local dbname="$(getVar gpgsql-dbname "$pv")"
-	local extra="$(getVar gpgsql-extra-connection-parameters "$pv")"
-	[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g') # what other url-ization ought happen here?
-
-	echo "postgres://$user@$host:$port/$dbname?$extra"
 }
 
 # build a connection string from kube configuration
 pgPass(){
-	local password="$(getVar gpgsql-password "$pv")"
-	local host="$(getVar gpgsql-host "$pv")"
-	local port="$(getVar gpgsql-port "$pv" 5432)"
-	local dbname="$(getVar gpgsql-dbname "$pv")"
-	[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g') # what other url-ization ought happen here?
 
-	echo "$host:$port:$dbname:$user:$password"
 }
 
-pgPass > ~/.pgpass
-exec psql "$(pgConn)" $*
+prep(){
+	local pv=$(_pdnsConfVars)
+	local user="$(pdnsVar gpgsql-user $pv)"
+	local password="$(pdnsVar gpgsql-password "$pv")"
+	local host="$(pdnsVar gpgsql-host "$pv")"
+	local port="$(pdnsVar gpgsql-port "$pv" 5432)"
+	local dbname="$(pdnsVar gpgsql-dbname "$pv")"
+	local extra="$(pdnsVar gpgsql-extra-connection-parameters "$pv")"
+	[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g') # what other url-ization ought happen here?
+
+	# write password to file
+	echo "$host:$port:$dbname:$user:$password" > ~/.pgpass
+	# build connection-string
+	echo "postgres://$user@$host:$port/$dbname?$extra"
+}
+
+exec psql "$(prep)" $*

@@ -1,10 +1,10 @@
 #!/bin/sh
 
 set -e
-set -x
 
+# use pdns-kube-etc to read kube config dirs, writing /etc/powerdns/conf.d files
 pdnsPreseedEtc(){
-	local dir="${1:-${PDNS_KUBE_ETC_DIRS:-$(pwd)}}"
+	local dir="${1:-${PDNS_KUBE_ETC_DIRS:-/etc/powerdns/kube}}"
 	local confd="${PDNS_CONFD_DIR:-/etc/powerdns/conf.d}"
 
 	for entry in $dir/*

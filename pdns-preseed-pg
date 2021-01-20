@@ -1,0 +1,11 @@
+#!/bin/sh
+
+seed=${1:/opt/docker-powerdns/sql/pgsql.schema.sql}
+source pdns-script-helpers
+
+# TODO: make configurable
+pdns-healthcheck-pg 60
+
+# TODO: create database?
+
+cat $1 | pdns-sql 
