@@ -3,9 +3,7 @@ FROM alpine:3.12
 LABEL \
 	MAINTAINERS="jauntywunderkind <jaunty+wunder+kind+dev@voodoowarez.com>" \
 	CONTRIBUTORS="Christoph Wiechert <wio@psitrax.de>, Mathias Kaufmann <me@stei.gr>, Cloudesire <cloduesire-dev@eng.it>"
-
 VOLUME ["/etc/powerdns/kube/config", "/etc/powerdns/kube/db", "/etc/powerdns/kube/secret"]
-
 ENV REFRESHED_AT="2020-1-9" \
 	POWERDNS_VERSION=4.4.0 \
 	PDNS_ETC_FILE=/etc/powerdns/pdns.conf \
@@ -24,10 +22,10 @@ ENV REFRESHED_AT="2020-1-9" \
 	PGSQL_PASS="postgres" \
 	PGSQL_DB="pdns" \
 	SQLITE_DB="pdns.sqlite3"
-
-ADD sql/ pdns.conf pdns-entrypoint pdns-healthcheck pdns-healthcheck-pg pdns-psql pdns-curl pdns-preseed-etc pdns-preseed-pg /opt/docker-powerdns/
 EXPOSE 53/tcp 53/udp 53000/tcp 80/tcp
 ENTRYPOINT ["pdns-entrypoint"]
+
+ADD sql/ pdns.conf pdns-entrypoint pdns-healthcheck pdns-healthcheck-pg pdns-psql pdns-curl pdns-preseed-etc pdns-preseed-pg pdns-script-helpers /opt/docker-powerdns/
 
 # via https://github.com/psi-4ward/docker-powerdns/blob/9660fe5c361d90e853705626657006b3755ade72/Dockerfile
 RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client mariadb-connector-c lua-dev curl-dev postgresql-client sqlite && \

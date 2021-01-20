@@ -1,41 +1,8 @@
 #!/bin/sh
-set -e
-set -x
 
-# print all pdns config
-pdnsVars(){
-	local pdns="${PDNS_ETC_FILE:-/etc/powerdns/pdns.conf}"
-	[ -f "$pdns" ] && cat $pdns
-	for entry in ${PDNS_CONFD_DIR}/*\.conf ; do
-		cat $entry
-	done
-}
-
-# get a variable from kube
-getKubeVar(){
-	for dir in ${PDNS_KUBE_ETC_DIRS}/* ; do
-		[ -e $dir/$1 ] && cat $dir/$1 && return
-	done
-}
-
-# get a variable from pdns. requires pdnsVars as arg2.
-getPdnsVar(){
-	local found=$(echo "$2" | grep -e "^$1" | tail -n1)
-	echo $(echo $found | sed -e "s/^$1\s*=\s*//")
-}
-
-# get a variable, from either
-getVar(){
-	local pdns="$(getPdnsVar "$1" "$2")"
-	[ -n "$pdns" ] && echo $pdns && return
-	local kube="$(getKubeVar "$1")"
-	[ -n "$kube" ] && echo $kube && return
-	[ -n "$3" ] && echo $3
-}
-
+source pdns-script-helpers
 
 pgConn(){
-	local password="$(getVar gpgsql-password "$pv")"
 	local host="$(getVar gpgsql-host "$pv")"
 	local port="$(getVar gpgsql-port "$pv" 5432)"
 	local dbname="$(getVar gpgsql-dbname "$pv")"
@@ -51,11 +18,10 @@ pgPass(){
 	local host="$(getVar gpgsql-host "$pv")"
 	local port="$(getVar gpgsql-port "$pv" 5432)"
 	local dbname="$(getVar gpgsql-dbname "$pv")"
-	local extra="$(getVar gpgsql-extra-connection-parameters "$pv")"
 	[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g') # what other url-ization ought happen here?
 
 	echo "$host:$port:$dbname:$user:$password"
 }
 
 pgPass > ~/.pgpass
-exec psql $(pgConnString) $*
+exec psql "$(pgConn)" $*

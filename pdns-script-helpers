@@ -1,0 +1,34 @@
+# print all pdns config
+_pdnsConfdVars(){
+	local pdns="${PDNS_ETC_FILE:-/etc/powerdns/pdns.conf}"
+	[ -f "$pdns" ] && cat $pdns
+	for entry in ${PDNS_CONFD_DIR:-/etc/powerdns/conf.d}/*\.conf ; do
+		cat $entry
+	done
+}
+
+# get a variable (named in $1) from pdns. optional pdnsVars as arg2.
+_pdnsConfVar(){
+	# get all variables
+	local allVars="${2:-${_pdnsConfdVars}}"
+	# look through all vars for $1
+	local found="$(echo "$2" | grep -e "^$1\s*=" | tail -n1)"
+	echo $(echo $found | sed -e "s/^$1\s*=\s*//")
+}
+
+# get a variable from kube
+_pdnsKubeEtcVar(){
+	for dir in ${PDNS_KUBE_ETC_DIRS:-/etc/powerdns/kube}/* ; do
+		[ -e $dir/$1 ] && cat $dir/$1 && return
+	done
+}
+
+
+# get a variable, from either
+pdnsVar(){
+	local pdns="$(_pdnsConfVar "$1" "$2")"
+	[ -n "$pdns" ] && echo $pdns && return
+	local kube="$(_pdnsKubeEtcVar "$1")"
+	[ -n "$kube" ] && echo $kube && return
+	[ -n "$3" ] && echo $3
+}
