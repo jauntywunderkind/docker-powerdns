@@ -33,10 +33,8 @@ getVar(){
 	[ -n "$3" ] && echo $3
 }
 
-# build a connection string from kube configuration
-pgConnString(){
-	local pv="$(pdnsVars)"
-	local user="$(getVar gpgsql-user "$pv")"
+
+pgConn(){
 	local password="$(getVar gpgsql-password "$pv")"
 	local host="$(getVar gpgsql-host "$pv")"
 	local port="$(getVar gpgsql-port "$pv" 5432)"
@@ -44,7 +42,20 @@ pgConnString(){
 	local extra="$(getVar gpgsql-extra-connection-parameters "$pv")"
 	[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g') # what other url-ization ought happen here?
 
-	echo "postgresql://$user@$password@$host:$port/$dbname?$extra"
+	echo "postgres://$user@$host:$port/$dbname?$extra"
 }
 
+# build a connection string from kube configuration
+pgPass(){
+	local password="$(getVar gpgsql-password "$pv")"
+	local host="$(getVar gpgsql-host "$pv")"
+	local port="$(getVar gpgsql-port "$pv" 5432)"
+	local dbname="$(getVar gpgsql-dbname "$pv")"
+	local extra="$(getVar gpgsql-extra-connection-parameters "$pv")"
+	[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g') # what other url-ization ought happen here?
+
+	echo "$host:$port:$dbname:$user:$password"
+}
+
+pgPass > ~/.pgpass
 exec psql $(pgConnString) $*
