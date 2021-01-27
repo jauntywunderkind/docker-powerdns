@@ -1,9 +1,9 @@
 #!/bin/sh
 
-source pdns-script-helpers
+
 
 # TODO: presently we re-config every time. save our work to .pgenv file, only rebuild if needed
-prep(){
+pdnsPgEnv(){
 	local pv=$(_pdnsConfVars)
 	local user="$(pdnsVar gpgsql-user $pv)"
 	local password="$(pdnsVar gpgsql-password "$pv")"
@@ -18,5 +18,10 @@ prep(){
 	# build connection-string
 	echo "postgres://$user@$host:$port/$dbname?$extra"
 }
+
+# this will also write ~/.pgpass
+[ ! -f ~/.pgenv ] && source pdns-script-helpers && pdnsPgEnv > ~/.pgenv
+
+source ~/.pgenv
 
 exec psql "$(prep)" $*
