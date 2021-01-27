@@ -44,6 +44,7 @@ RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client
 	mv /tmp/lib* /usr/lib/ && \
 	rm -rf /tmp/pdns-$POWERDNS_VERSION /var/cache/apk/* && \
 	ln -s /opt/docker-powerdns/pdns.conf /etc/powerdns/pdns.conf && \
+	ln -s /etc/powerdns/pdns.conf /etc/pdns.conf && \
 	ln -s /opt/docker-powerdns/pdns-* /bin/
 
 USER pdns:pdns

@@ -9,6 +9,6 @@ do
 	then
 		exit 0
 	fi
-	delay 5
+	sleep 5
 	sec="$((sec - 5))"
 done
