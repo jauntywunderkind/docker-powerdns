@@ -11,4 +11,6 @@ pdns-healthcheck-pg 60
 
 # TODO: create database?
 
-cat "$seed" | pdns-sql 
+# TODO: test if we need to run or not
+
+cat "$seed" | pdns-psql 
