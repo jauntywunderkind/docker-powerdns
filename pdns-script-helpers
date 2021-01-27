@@ -34,16 +34,16 @@ pdnsVar(){
 }
 
 pdnsPgEnv(){
-	local pv=$(_pdnsConfVars)
-	local user="$(pdnsVar gpgsql-user $pv)"
-	echo "export PGUSER=$user"
-	local password="$(pdnsVar gpgsql-password "$pv")"
+	local pv=$(_pdnsConfdVars)
 	local host="$(pdnsVar gpgsql-host "$pv")"
 	echo "export PGHOST=$host"
 	local port="$(pdnsVar gpgsql-port "$pv" 5432)"
 	echo "export PGPORT=$port"
 	local dbname="$(pdnsVar gpgsql-dbname "$pv")"
 	echo "export PGDATABASE=$dbname"
+	local user="$(pdnsVar gpgsql-user $pv)"
+	echo "export PGUSER=$user"
+	local password="$(pdnsVar gpgsql-password "$pv")"
 	#local extra="$(pdnsVar gpgsql-extra-connection-parameters "$pv")"
 	#[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g') # what other url-ization ought happen here?
 
