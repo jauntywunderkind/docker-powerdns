@@ -1,24 +1,5 @@
 #!/bin/sh
 
-
-
-# TODO: presently we re-config every time. save our work to .pgenv file, only rebuild if needed
-pdnsPgEnv(){
-	local pv=$(_pdnsConfVars)
-	local user="$(pdnsVar gpgsql-user $pv)"
-	local password="$(pdnsVar gpgsql-password "$pv")"
-	local host="$(pdnsVar gpgsql-host "$pv")"
-	local port="$(pdnsVar gpgsql-port "$pv" 5432)"
-	local dbname="$(pdnsVar gpgsql-dbname "$pv")"
-	local extra="$(pdnsVar gpgsql-extra-connection-parameters "$pv")"
-	[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g') # what other url-ization ought happen here?
-
-	# write password to file
-	echo "$host:$port:$dbname:$user:$password" > ~/.pgpass
-	# build connection-string
-	echo "postgres://$user@$host:$port/$dbname?$extra"
-}
-
 # this will also write ~/.pgpass
 [ ! -f ~/.pgenv ] && source pdns-script-helpers && pdnsPgEnv > ~/.pgenv
 
