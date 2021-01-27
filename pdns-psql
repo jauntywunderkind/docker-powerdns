@@ -5,4 +5,4 @@
 
 source ~/.pgenv
 
-exec psql "$(prep)" $*
+exec psql $*
