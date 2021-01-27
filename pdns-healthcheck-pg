@@ -1,3 +1,14 @@
 #!/bin/sh
 
-echo "SELECT 1" | pdns-sql
+sec="${1:-60}"
+
+while [ "$sec" -gt 0 ]
+do
+	echo "SELECT 1" | pdns-sql
+	if [ $? -eq 0 ]
+	then
+		exit 0
+	fi
+	delay 5
+	sec="$((sec - 5))"
+done

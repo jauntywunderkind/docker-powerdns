@@ -1,11 +1,14 @@
 #!/bin/sh
 
 seed=${1:/opt/docker-powerdns/sql/pgsql.schema.sql}
-source pdns-script-helpers
+
+# TODO: i think i want to write a .pgpass & .pgenv in this file
+# powered by conf.d
+# and delete most of the other variable handling stuff/helpers.
 
 # TODO: make configurable
 pdns-healthcheck-pg 60
 
 # TODO: create database?
 
-cat $1 | pdns-sql 
+cat "$seed" | pdns-sql 

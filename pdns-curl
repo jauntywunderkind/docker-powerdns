@@ -1,0 +1,6 @@
+#!/bin/sh
+
+source pdns-script-helpers
+
+
+exec curl -v -H 'X-API-Key: changeme' http://127.0.0.1:8081/api/v1/servers/localhost | jq .
