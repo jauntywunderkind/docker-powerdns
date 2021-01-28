@@ -35,13 +35,15 @@ RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client
 	./configure --prefix="" --exec-prefix=/usr \
 	  --with-modules="bind gmysql gpgsql gsqlite3 lua2" && \
 	make && make install-strip && cd / && \
-	mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
-	addgroup -S pdns 2>/dev/null && \
-	adduser -S -D -h /home/pdns -s /bin/sh -G pdns -g pdns pdns 2>/dev/null && \
 	cp /usr/lib/libboost_program_options.so* /tmp && \
 	apk del --purge build-deps && \
 	mv /tmp/lib* /usr/lib/ && \
-	rm -rf /tmp/pdns-$POWERDNS_VERSION /var/cache/apk/* && \
+	rm -rf /tmp/pdns-$POWERDNS_VERSION /var/cache/apk/* \
+
+RUN mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
+	addgroup -S pdns 2>/dev/null && \
+	adduser -S -D -h /home/pdns -s /bin/sh -G pdns -g pdns pdns 2>/dev/null && \
+	chown $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
 	ln -sf /opt/docker-powerdns/pdns.conf /etc/powerdns/pdns.conf && \
 	ln -sf /etc/powerdns/pdns.conf /etc/pdns.conf && \
 	ln -sf \
@@ -56,5 +58,5 @@ RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client
 		/opt/docker-powerdns/pdns-script-helpers \
 		/bin/
 
-ADD sql/ pdns.conf pdns-entrypoint pdns-healthcheck pdns-healthcheck-pg pdns-psql pdns-curl pdns-preseed-etc pdns-preseed-pg pdns-script-helpers /opt/docker-powerdns/
+ADD sql pdns.conf pdns-entrypoint pdns-healthcheck pdns-healthcheck-pg pdns-psql pdns-curl pdns-preseed-etc pdns-preseed-pg pdns-script-helpers /opt/docker-powerdns/
 USER pdns:pdns
