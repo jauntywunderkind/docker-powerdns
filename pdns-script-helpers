@@ -48,4 +48,5 @@ pdnsPgEnv(){
 	#[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g') # what other url-ization ought happen here?
 
 	echo "$host:$port:$dbname:$user:$password" > ~/.pgpass
+	chmod 0600 ~/.pgpass
 }
