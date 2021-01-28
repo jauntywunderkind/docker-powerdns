@@ -44,7 +44,17 @@ RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client
 	rm -rf /tmp/pdns-$POWERDNS_VERSION /var/cache/apk/* && \
 	ln -sf /opt/docker-powerdns/pdns.conf /etc/powerdns/pdns.conf && \
 	ln -sf /etc/powerdns/pdns.conf /etc/pdns.conf && \
-	ln -sf /opt/docker-powerdns/pdns-* /bin/
+	ln -sf \
+		/opt/docker-powerdns/pdns-curl \
+		/opt/docker-powerdns/pdns-entrypoint \
+		/opt/docker-powerdns/pdns-healthcheck \
+		/opt/docker-powerdns/pdns-healthcheck-pg \
+		/opt/docker-powerdns/pdns-kube-etc \
+		/opt/docker-powerdns/pdns-preseed-etc \
+		/opt/docker-powerdns/pdns-preseed-pg \
+		/opt/docker-powerdns/pdns-psql \
+		/opt/docker-powerdns/pdns-script-helpers \
+		/bin/
 
 ADD sql/ pdns.conf pdns-entrypoint pdns-healthcheck pdns-healthcheck-pg pdns-psql pdns-curl pdns-preseed-etc pdns-preseed-pg pdns-script-helpers /opt/docker-powerdns/
 USER pdns:pdns
