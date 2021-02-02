@@ -5,7 +5,7 @@ LABEL \
 	CONTRIBUTORS="Christoph Wiechert <wio@psitrax.de>, Mathias Kaufmann <me@stei.gr>, Cloudesire <cloduesire-dev@eng.it>"
 VOLUME ["/etc/powerdns/kube/config", "/etc/powerdns/kube/db", "/etc/powerdns/kube/secret"]
 ENV REFRESHED_AT="2020-1-9" \
-	POWERDNS_VERSION=4.4.0 \
+	PDNS_VERSION=4.4.0 \
 	PDNS_ETC_FILE=/etc/powerdns/pdns.conf \
 	PDNS_KUBE_ETC_DIRS=/etc/powerdns/kube \
 	PDNS_CONFD_DIR=/etc/powerdns/conf.d \
@@ -30,15 +30,15 @@ ENTRYPOINT ["pdns-entrypoint"]
 RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client mariadb-connector-c lua-dev curl-dev postgresql-client sqlite && \
 	apk add --virtual build-deps \
 	g++ make mariadb-dev postgresql-dev sqlite-dev curl boost-dev mariadb-connector-c-dev && \
-	curl -sSL https://downloads.powerdns.com/releases/pdns-$POWERDNS_VERSION.tar.bz2 | tar xj -C /tmp && \
-	cd /tmp/pdns-$POWERDNS_VERSION && \
+	curl -sSL https://downloads.powerdns.com/releases/pdns-$PDNS_VERSION.tar.bz2 | tar xj -C /tmp && \
+	cd /tmp/pdns-$PDNS_VERSION && \
 	./configure --prefix="" --exec-prefix=/usr \
 	  --with-modules="bind gmysql gpgsql gsqlite3 lua2" && \
 	make && make install-strip && cd / && \
 	cp /usr/lib/libboost_program_options.so* /tmp && \
 	apk del --purge build-deps && \
 	mv /tmp/lib* /usr/lib/ && \
-	rm -rf /tmp/pdns-$POWERDNS_VERSION /var/cache/apk/* \
+	rm -rf /tmp/pdns-$PDNS_VERSION /var/cache/apk/*
 
 RUN mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
 	addgroup -S pdns 2>/dev/null && \
