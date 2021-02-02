@@ -43,7 +43,7 @@ RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client
 RUN mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
 	addgroup -S pdns 2>/dev/null && \
 	adduser -S -D -h /home/pdns -s /bin/sh -G pdns -g pdns pdns 2>/dev/null && \
-	chown $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
+	chown pdns:pdns $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
 	ln -sf /opt/docker-powerdns/pdns.conf /etc/powerdns/pdns.conf && \
 	ln -sf /etc/powerdns/pdns.conf /etc/pdns.conf && \
 	ln -sf \
