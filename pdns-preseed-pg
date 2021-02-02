@@ -1,6 +1,6 @@
 #!/bin/sh
 
-seed=${1:/opt/docker-powerdns/sql/pgsql.schema.sql}
+seed=${1:-/opt/docker-powerdns/pgsql.schema.sql}
 
 # TODO: i think i want to write a .pgpass & .pgenv in this file
 # powered by conf.d

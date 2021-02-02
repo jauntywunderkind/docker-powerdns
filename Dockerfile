@@ -43,7 +43,8 @@ RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client
 RUN mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
 	addgroup -S pdns 2>/dev/null && \
 	adduser -S -D -h /home/pdns -s /bin/sh -G pdns -g pdns pdns 2>/dev/null && \
-	chown pdns:pdns $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
+	touch $PDNS_CONFD_DIR/_empty.conf && \
+	chown pdns:pdns $PDNS_CONFD_DIR $PDNS_CONFD_DIR/_empty.conf $PDNS_KUBE_ETC_DIRS && \
 	ln -sf /opt/docker-powerdns/pdns.conf /etc/powerdns/pdns.conf && \
 	ln -sf /etc/powerdns/pdns.conf /etc/pdns.conf && \
 	ln -sf \
@@ -58,5 +59,5 @@ RUN mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
 		/opt/docker-powerdns/pdns-script-helpers \
 		/bin/
 
-ADD sql pdns.conf pdns-entrypoint pdns-healthcheck pdns-healthcheck-pg pdns-psql pdns-curl pdns-preseed-etc pdns-preseed-pg pdns-script-helpers /opt/docker-powerdns/
+ADD sql pdns.conf pdns-entrypoint pdns-healthcheck pdns-healthcheck-pg pdns-kube-etc pdns-psql pdns-curl pdns-preseed-etc pdns-preseed-pg pdns-script-helpers /opt/docker-powerdns/
 USER pdns:pdns

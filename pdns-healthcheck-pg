@@ -4,7 +4,7 @@ sec="${1:-60}"
 
 while [ "$sec" -gt 0 ]
 do
-	echo "SELECT 1" | pdns-psql
+	echo "SELECT 1" | pdns-psql >/dev/null
 	if [ $? -eq 0 ]
 	then
 		exit 0
