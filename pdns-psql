@@ -1,8 +1,8 @@
 #!/bin/sh
 
+# insure we have needed config files
 # this will also write ~/.pgpass
 [ ! -f ~/.pgenv ] && source pdns-script-helpers && pdnsPgEnv > ~/.pgenv
-
 source ~/.pgenv
 
 exec psql $*

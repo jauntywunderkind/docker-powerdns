@@ -10,6 +10,11 @@ seed=${1:-/opt/docker-powerdns/pgsql.schema.sql}
 pdns-healthcheck-pg 60
 
 # TODO: create database?
+# for now assume postgres operator has created it
+
+# TODO: get from env & set default schema for the role
+# can/should we regenerate env vars? pdns-healthcheck-pg also doing the same, independently atm
+#echo "alter role ${pdns_role} set search_path = "${pdns_schema},${pdns_role},public"
 
 # TODO: test if we need to run or not
 

@@ -4,6 +4,7 @@ sec="${1:-60}"
 
 while [ "$sec" -gt 0 ]
 do
+	# TODO: un-ideal maybe that we keep re-generating pdns-psql env
 	echo "SELECT 1" | pdns-psql >/dev/null
 	if [ $? -eq 0 ]
 	then
