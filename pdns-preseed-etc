@@ -10,7 +10,6 @@ pdnsPreseedEtc(){
 	for entry in $dir/*
 	do
 		local key="$(basename $entry)"
-		echo RUNNING $key $entry
 		pdns-kube-etc "$entry" > "$confd/$key.conf"
 	done
 }

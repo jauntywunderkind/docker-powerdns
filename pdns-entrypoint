@@ -9,25 +9,16 @@ set -e
 # treat everything except -- as exec cmd
 [ "${1:0:2}" != "--" ] && exec "$@"
 
-echo status: files
-find /etc/powerdns
-
-echo status: healthcheck
 pdns-healthcheck-pg
 
-echo status: preseed-etc
 pdns-preseed-etc &
-echo status: preseed-pg
-pdns-preseed-pg &
+pdns-preseed-pg 
 
 wait
 
 # environment hygiene
 for var in $(printenv | cut -f1 -d= | grep -v -e HOME -e USER -e PATH ); do unset $var; done
 export TZ=UTC LANG=C LC_ALL=C
-
-echo status: env
-env
 
 # create zones
 for zone in $(echo "$PDNS_ZONES" | sed "s/,/ /g")

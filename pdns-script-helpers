@@ -23,7 +23,6 @@ _pdnsKubeEtcVar(){
 	done
 }
 
-
 # get a variable, from either
 pdnsVar(){
 	local pdns="$(_pdnsConfVar "$1" "$2")"

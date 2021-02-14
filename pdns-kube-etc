@@ -13,7 +13,8 @@ pdnsKubeEtc(){
 		local key="$(basename $entry)"
 
 		# not a part of kube afaik but support subdirs
-		if [ -d "$entry" ] ; then
+		if [ -d "$entry" ]
+		then
 			pdnsKubeEtc "$entry" "$prefix$key"
 			continue
 		fi
