@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sec="${1:-60}"
+sec="${1:-${PDNS_HEALTHCHECK_TIMEOUT:-60}}"
 
 while [ "$sec" -gt 0 ]
 do

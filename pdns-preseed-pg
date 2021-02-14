@@ -1,21 +1,21 @@
 #!/bin/sh
 
-seed=${1:-/opt/docker-powerdns/pgsql.schema.sql}
+pdnsPreseedPg(){
+	type -t pdnsScriptHelperInit && SOURCE_ONLY=1 source pdns-script-helpers && pdnsScriptHelperInit
 
-# TODO: i think i want to write a .pgpass & .pgenv in this file
-# powered by conf.d
-# and delete most of the other variable handling stuff/helpers.
+	seed="${1:-${PDNS_SEED_FILE:-/opt/docker-powerdns/psql.schema.sql}}"
+	
+	pdns-healthcheck-pg 60
+	
+	# TODO: create database?
+	# for now assume postgres operator has created it
+	
+	# TODO: get from env & set default schema for the role
+	echo "alter role ${pdns_role} set search_path = "${pdns_schema},${pdns_role},public" | psql
+	
+	# TODO: test if we need to run or not
+	
+	cat "$seed" | pdns-psql 
+}
 
-# TODO: make configurable
-pdns-healthcheck-pg 60
-
-# TODO: create database?
-# for now assume postgres operator has created it
-
-# TODO: get from env & set default schema for the role
-# can/should we regenerate env vars? pdns-healthcheck-pg also doing the same, independently atm
-#echo "alter role ${pdns_role} set search_path = "${pdns_schema},${pdns_role},public"
-
-# TODO: test if we need to run or not
-
-cat "$seed" | pdns-psql 
+[ -z "$SOURCE_ONLY" ] || exec pdnsPreseedPg $*

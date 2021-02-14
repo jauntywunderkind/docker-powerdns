@@ -32,8 +32,9 @@ pdnsVar(){
 	[ -n "$3" ] && echo $3
 }
 
-pdnsPgEnv(){
-	local pv=$(_pdnsConfdVars)
+# echo out the psql environment variables
+pdnsPsqlEnv(){
+	local pv="${1:-$(_pdnsConfdVars)}"
 	local host="$(pdnsVar gpgsql-host "$pv")"
 	echo "export PGHOST=$host"
 	local port="$(pdnsVar gpgsql-port "$pv" 5432)"
@@ -42,10 +43,35 @@ pdnsPgEnv(){
 	echo "export PGDATABASE=$dbname"
 	local user="$(pdnsVar gpgsql-user $pv)"
 	echo "export PGUSER=$user"
-	local password="$(pdnsVar gpgsql-password "$pv")"
+
+	[ "$1" = "-p" ] && echo "export PGPASSWORD=\"$(pdnsVar gpgsql-password "$pv")\""
+
 	#local extra="$(pdnsVar gpgsql-extra-connection-parameters "$pv")"
 	#[ -n "$extra" ] && extra=$(echo $extra | sed 's/\s/\&/g') # what other url-ization ought happen here?
 
-	echo "$host:$port:$dbname:$user:$password" > ~/.pgpass
-	chmod 0600 ~/.pgpass
+	#echo "$host:$port:$dbname:$user:$password" > ~/.pgpass
+	#chmod 0600 ~/.pgpass
 }
+
+# set the psql env vars
+pdnsPsqlEnvSet(){
+	eval $(pdnsPgEnv $*)
+}
+
+# write the pgpass file
+pdnsPgPassWrite(){
+	[ -f ~/.pgpass ] && [ "$1" != "-f" ] && return
+	[ -z "$PGPASSWORD" ] && PGPASSWORD="$(pdnsVar gpgsql-password "${2:-$(_pdnsConfdVars)}")"
+	echo "$PGHOST:$PGPORT:$PGDATABASE:$PGUSER:$PGPASSWORD" > ~/.pgpass
+	chmod 0600 ~/.pgpass
+	unset $PGPASSWORD
+}
+
+pdnsScriptHelperInit(){
+	local pv="$(_pdnsConfdVars)"
+	[ -z "$PGHOST" ] || pdnsPgEnvSet "$pv"
+	pdnsPgPassWrite -f "$pv"
+}
+
+# print vars
+[ -z "$SOURCE_ONLY" ] || eval pdnsPsqlEnv $*

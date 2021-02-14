@@ -9,6 +9,7 @@ ENV REFRESHED_AT="2020-1-9" \
 	PDNS_ETC_FILE=/etc/powerdns/pdns.conf \
 	PDNS_KUBE_ETC_DIRS=/etc/powerdns/kube \
 	PDNS_CONFD_DIR=/etc/powerdns/conf.d \
+	PDNS_SEED_FILE=/opt/docker-powerdns/pgsql.schema.sql \
 	AUTOCONF=pgsql \
 	MYSQL_HOST="mysql" \
 	MYSQL_PORT="3306" \
