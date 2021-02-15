@@ -10,11 +10,10 @@ set -e
 [ "${1:0:2}" != "--" ] && exec "$@"
 
 SOURCE_ONLY=1 source pdns-script-helpers
+pdnsExportKubeEtc ~/.pgenv.owner
 
-pdns-preseed-etc &
-pdns-preseed-pg &
-
-wait
+pdns-preseed-etc
+pdns-preseed-pg
 
 # environment hygiene
 for var in $(printenv | cut -f1 -d= | grep -v -e HOME -e USER -e PATH ); do unset $var; done

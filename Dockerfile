@@ -52,6 +52,8 @@ RUN mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS /var/run/pdns && \
 		/opt/docker-powerdns/pdns-curl \
 		/opt/docker-powerdns/pdns-entrypoint \
 		/opt/docker-powerdns/pdns-healthcheck \
+		/opt/docker-powerdns/pdns-healthcheck-api \
+		/opt/docker-powerdns/pdns-healthcheck-domain \
 		/opt/docker-powerdns/pdns-healthcheck-pg \
 		/opt/docker-powerdns/pdns-kube-etc \
 		/opt/docker-powerdns/pdns-preseed-etc \
@@ -60,5 +62,5 @@ RUN mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS /var/run/pdns && \
 		/opt/docker-powerdns/pdns-script-helpers \
 		/bin/
 
-ADD sql pdns.conf pdns-entrypoint pdns-healthcheck pdns-healthcheck-pg pdns-kube-etc pdns-psql pdns-curl pdns-preseed-etc pdns-preseed-pg pdns-script-helpers /opt/docker-powerdns/
+ADD sql pdns.conf pdns-entrypoint pdns-healthcheck pdns-healthcheck-api pdns-healthcheck-domain pdns-healthcheck-pg pdns-kube-etc pdns-psql pdns-curl pdns-preseed-etc pdns-preseed-pg pdns-script-helpers /opt/docker-powerdns/
 USER pdns:pdns

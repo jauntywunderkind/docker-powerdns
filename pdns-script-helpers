@@ -41,4 +41,7 @@ pdnsExportKubeEtc(){
 }
 
 # print vars
-[ -z "$SOURCE_ONLY" ] || echo have a good day
+if [ -z "$SOURCE_ONLY" ]
+then
+	echo have a good day
+fi

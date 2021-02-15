@@ -1,16 +1,29 @@
 #!/bin/sh
 
-sec="${1:-${PDNS_HEALTHCHECK_TIMEOUT:-60}}"
+pdnsHealthcheckPg(){
+	local sec="${1:-${PDNS_HEALTHCHECK_TIMEOUT:-60}}"
 
-while [ "$sec" -gt 0 ]
-do
-	echo "SELECT 1" | pdns-psql >/dev/null
-	if [ $? -eq 0 ]
+	if [ -z "$PGUSER" ]
 	then
-		exit 0
+		echo "no PGUSER for healthcheck" 1>&2
+		return 1
 	fi
-	sleep 5
-	sec="$((sec - 5))"
-done
-echo "database did not respond" 1>&2
-exit 1
+
+	while [ "$sec" -gt 0 ]
+	do
+		echo "SELECT 1" | pdns-psql >/dev/null
+		if [ $? -eq 0 ]
+		then
+			return 0
+		fi
+		sleep 5
+		sec="$((sec - 5))"
+	done
+	echo "database did not respond" 1>&2
+	return 1
+}
+
+if [ -z "$SOURCE_ONLY" ]
+then
+	 pdnsHealthcheckPg $*
+fi

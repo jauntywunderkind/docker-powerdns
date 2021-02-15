@@ -1,19 +1,30 @@
 #!/bin/sh
 
 pdnsPreseedPg(){
+	echo preseed-pg 1>&2
 	seed="${1:-${PDNS_SEED_FILE:-/opt/docker-powerdns/psql.schema.sql}}"
 
 	# check that db is up AND prepare psql
-	source pdns-healthcheck-pg 60
-	[ "$?" -ne 0 ] && return 1
+	! command -v pdnsHealthcheckPg && SOURCE_ONLY=1 source pdns-healthcheck-pg || true
+	if ! pdnsHealthcheckPg
+	then
+		echo "pdnsPreseedPg failed" 1>&2
+		return 1
+	fi
 	
 	# TODO: create database?
 	# for now assume postgres operator has created it
 
-	echo "alter role $PGUSER set search_path = \"${PGSCHEMA},public\"" | psql
+	echo "alter role $PGUSER set search_path = ${PGSCHEMA},\"\$user\",public" | psql --no-readline --echo-errors
 
 	# TODO: test if we need to run or not
-	psql -f "$seed"
+	# -1 -n -e
+	psql --single-transaction --no-readline --echo-errors -f "$seed"
+	return $?
 }
 
-[ -z "$SOURCE_ONLY" ] && pdnsPreseedPg $*
+if [ -z "$SOURCE_ONLY" ]
+then
+	echo pre preseed pg 1>&2
+	pdnsPreseedPg $*
+fi
