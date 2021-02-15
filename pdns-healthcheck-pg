@@ -25,5 +25,6 @@ pdnsHealthcheckPg(){
 
 if [ -z "$SOURCE_ONLY" ]
 then
-	 pdnsHealthcheckPg $*
+	pdnsHealthcheckPg $*
+	return $?
 fi

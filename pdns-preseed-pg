@@ -27,4 +27,5 @@ if [ -z "$SOURCE_ONLY" ]
 then
 	echo pre preseed pg 1>&2
 	pdnsPreseedPg $*
+	return $?
 fi

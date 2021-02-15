@@ -39,9 +39,3 @@ pdnsExportKubeEtc(){
 		export $(basename $f)="$(cat $f)"
 	done
 }
-
-# print vars
-if [ -z "$SOURCE_ONLY" ]
-then
-	echo have a good day
-fi

@@ -10,4 +10,5 @@ pdnsHealthcheckApi(){
 if [ -z "$SOURCE_ONLY" ]
 then
 	pdnsHealthcheckApi $*
+	return $?
 fi

@@ -29,4 +29,5 @@ if [ -z "$SOURCE_ONLY" ]
 then
 	pdnsPsqlKubeInit
 	psql $*
+	return $?
 fi
