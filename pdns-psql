@@ -1,8 +1,26 @@
 #!/bin/sh
 
-# insure we have needed config files
-# this will also write ~/.pgpass
-[ ! -f ~/.pgenv ] && source pdns-script-helpers && pdnsPgEnv > ~/.pgenv
-source ~/.pgenv
+pdnsPsqlKubeInit(){
+	! type -k pdnsExportKubeEtc && SOURCE_ONLY=1 source pdns-script-helpers
 
-exec psql $*
+	# this will export env vars
+	pdnsExportKubeEtc ${1:-~/.pgenv.${PGROLE:-owner}}
+
+	# we should know our user
+	[ -z "$PGUSER" ] && echo "no PGUSER" 1>&2 && return 1
+
+	# make sure we have a pgpass
+	local line="$PGHOST:$PGPORT:$PGDATABASE:$PGUSER:$PGPASSWORD"
+	grep -n -q -e "^$line" ~/.pgpass 2>/dev/null
+	if [ $? -ne 0 ]
+	then
+		[ -z "$PGPASSWORD" ] && echo "no PGPASSWORD" 1>&2 && return 1
+
+		(echo "$line" && cat ~/.pgpass 2>/dev/null || true) > ~/.pgpass2
+		mv ~/.pgpass2 ~/.pgpass
+	fi
+	chmod 0600 ~/.pgpass
+	unset PGPASSWORD
+}
+
+[ -z "$SOURCE_ONLY" ] && pdnsPsqlKubeInit && exec psql $*

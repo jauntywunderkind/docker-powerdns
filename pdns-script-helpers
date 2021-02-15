@@ -55,7 +55,7 @@ pdnsPsqlEnv(){
 
 # set the psql env vars
 pdnsPsqlEnvSet(){
-	eval $(pdnsPgEnv $*)
+	eval $(pdnsPsqlEnv $*)
 }
 
 # write the pgpass file
@@ -71,6 +71,13 @@ pdnsScriptHelperInit(){
 	local pv="$(_pdnsConfdVars)"
 	[ -z "$PGHOST" ] || pdnsPgEnvSet "$pv"
 	pdnsPgPassWrite -f "$pv"
+}
+
+pdnsExportKubeEtc(){
+	for f in $1/*
+	do
+		export $(basename $f)="$(cat $f)"
+	done
 }
 
 # print vars
