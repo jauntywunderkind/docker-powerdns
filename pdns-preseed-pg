@@ -10,7 +10,7 @@ pdnsPreseedPg(){
 		echo "pdnsPreseedPg failed" 1>&2
 		return 1
 	fi
-	
+
 	# TODO: create database?
 	# for now assume postgres operator has created it
 
@@ -23,21 +23,16 @@ pdnsPreseedPg(){
 	# needs db ownership, which we have not been passing in
 	#echo "alter database ${PGDATABASE} set search_path = ${PGSCHEMA}" 1>&2
 
+    # TODO: surely this isn't really necessary?
 	echo "alter role $PGUSER set search_path = $PGSCHEMA;" | psql --no-readline --echo-errors
-	echo "alter user $PGUSER in $PGDATABASE set search_path = $PGSCHEMA;" | psql --no-readline --echo-errors
-	echo "select current_schema();" | psql --no-readline
-	
-	# TODO: test if we need to run or not
-	echo "select existing" 1>&2
-	echo "select exists (select from pg_tables where schemaname = '${PGSCHEMA}' and tablename = 'domains' );" | psql --no-readline --echo-errors --tuples-only 1>&2
+	echo "alter user $PGUSER in database $PGDATABASE set search_path = $PGSCHEMA;" | psql --no-readline --echo-errors
 
-	# -1 -n -e
-	psql -v ON_ERROR_STOP=1 --single-transaction --no-readline --echo-errors -f "$seed"
-	val="$?"
-	echo "seed status $val" 1>&2
-	echo "select exists (select from pg_tables where schemaname = '${PGSCHEMA}' and tablename = 'domains' );" | psql --no-readline --echo-errors 1>&2
-	echo p2
-	return $val
+	local seeded="$(echo "select exists (select from pg_tables where schemaname = '${PGSCHEMA}' and tablename = 'domains' );" | psql -n -t)"
+	if [ "${seeded## }" != t ]
+	then
+		psql -v ON_ERROR_STOP=1 -1 -n -f "$seed"
+		return $?
+	fi
 }
 
 if [ -z "$SOURCE_ONLY" ]
