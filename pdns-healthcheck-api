@@ -3,7 +3,7 @@
 pdnsHealthcheckApi(){
 	local WEBSERVER_PORT="$(cat /etc/powerdns/kube/*/webserver-port | tail -n1)"
 	local WEBSERVER_PASSWORD="$(cat /etc/powerdns/kube/*/webserver-password | tail -n1)"
-	curl --fail -u#${WEBSERVER_PASSWORD} http://localhost:${WEBSERVER_PORT}/
+	curl --fail -u#:${WEBSERVER_PASSWORD} http://localhost:${WEBSERVER_PORT}/metrics
 	return $?
 }
 
