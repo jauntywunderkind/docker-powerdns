@@ -23,4 +23,4 @@ pdnsPsqlKubeInit(){
 	unset PGPASSWORD
 }
 
-[ -z "$SOURCE_ONLY" ] && pdnsPsqlKubeInit && exec psql $*
+[ -z "$SOURCE_ONLY" ] && pdnsPsqlKubeInit && psql $*
