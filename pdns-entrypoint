@@ -9,10 +9,10 @@ set -e
 # treat everything except -- as exec cmd
 [ "${1:0:2}" != "--" ] && exec "$@"
 
-pdns-healthcheck-pg
+source pdns-script-helpers
 
 pdns-preseed-etc &
-pdns-preseed-pg 
+pdns-preseed-pg &
 
 wait
 

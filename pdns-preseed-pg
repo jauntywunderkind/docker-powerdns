@@ -1,21 +1,22 @@
 #!/bin/sh
 
 pdnsPreseedPg(){
-	type -t pdnsScriptHelperInit && SOURCE_ONLY=1 source pdns-script-helpers && pdnsScriptHelperInit
-
 	seed="${1:-${PDNS_SEED_FILE:-/opt/docker-powerdns/psql.schema.sql}}"
-	
-	pdns-healthcheck-pg 60
+
+	echo pg healthchecking 1>&2
+	# check that db is up AND prepare psql
+	source pdns-healthcheck-pg 60
+	[ "$?" -ne 0 ] && return 1
 	
 	# TODO: create database?
 	# for now assume postgres operator has created it
-	
-	# TODO: get from env & set default schema for the role
-	echo "alter role ${pdns_role} set search_path = "${pdns_schema},${pdns_role},public" | psql
-	
+
+	echo pg search path 1>&2
+	echo "alter role $PGUSER set search_path = \"${PGSCHEMA},public\"" | psql
+
+	echo pg seed 1>&2	
 	# TODO: test if we need to run or not
-	
-	cat "$seed" | pdns-psql 
+	psql -f "$seed"
 }
 
 [ -z "$SOURCE_ONLY" ] || exec pdnsPreseedPg $*

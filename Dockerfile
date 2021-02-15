@@ -41,11 +41,11 @@ RUN apk --update add bash curl libpq sqlite-libs libstdc++ libgcc mariadb-client
 	mv /tmp/lib* /usr/lib/ && \
 	rm -rf /tmp/pdns-$PDNS_VERSION /var/cache/apk/*
 
-RUN mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS && \
+RUN mkdir -p $PDNS_CONFD_DIR $PDNS_KUBE_ETC_DIRS /var/run/pdns && \
 	addgroup -S pdns 2>/dev/null && \
 	adduser -S -D -h /opt/docker-powerdns -s /bin/sh -G pdns -g pdns pdns 2>/dev/null && \
-	touch $PDNS_CONFD_DIR/_empty.conf && \
-	chown pdns:pdns $PDNS_CONFD_DIR $PDNS_CONFD_DIR/_empty.conf $PDNS_KUBE_ETC_DIRS && \
+	touch $PDNS_CONFD_DIR/_empty.conf /var/run/pdns/.gitkeep && \
+	chown pdns:pdns $PDNS_CONFD_DIR $PDNS_CONFD_DIR/_empty.conf $PDNS_KUBE_ETC_DIRS /var/run/pdns && \
 	ln -sf /opt/docker-powerdns/pdns.conf /etc/powerdns/pdns.conf && \
 	ln -sf /etc/powerdns/pdns.conf /etc/pdns.conf && \
 	ln -sf \

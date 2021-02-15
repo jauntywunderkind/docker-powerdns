@@ -4,12 +4,13 @@ sec="${1:-${PDNS_HEALTHCHECK_TIMEOUT:-60}}"
 
 while [ "$sec" -gt 0 ]
 do
-	# TODO: un-ideal maybe that we keep re-generating pdns-psql env
 	echo "SELECT 1" | pdns-psql >/dev/null
 	if [ $? -eq 0 ]
 	then
-		exit 0
+		return 0
 	fi
 	sleep 5
 	sec="$((sec - 5))"
 done
+echo "database did not respond" 1>&2
+exit 1
