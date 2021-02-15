@@ -1,7 +1,14 @@
 #!/bin/sh
 
-pdns-healthcheck-pg &
-pdns-healthcheck-api &
-pdns-healthcheck-domain &
+pdnsHealthcheck(){
+	pdns-healthcheck-api && \
+	pdns-healthcheck-domain && \
+	pdns-healthcheck-pg && \
+	pdns-healthcheck-web
+}
 
-wait
+if [ -z "$SOURCE_ONLY" ]
+then
+	pdnsHealthcheck
+	return $?
+fi

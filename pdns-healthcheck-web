@@ -1,0 +1,14 @@
+#!/bin/sh
+
+pdnsHealthcheckWeb(){
+	local WEBSERVER_PORT="$(cat /etc/powerdns/kube/*/webserver-port | tail -n1)"
+	local WEBSERVER_PASSWORD="$(cat /etc/powerdns/kube/*/webserver-password | tail -n1)"
+	curl --fail -s -u#:$WEBSERVER_PASSWORD http://localhost:$WEBSERVER_PORT/metrics
+	return $?
+}
+
+if [ -z "$SOURCE_ONLY" ]
+then
+	pdnsHealthcheckWeb $*
+	return $?
+fi
