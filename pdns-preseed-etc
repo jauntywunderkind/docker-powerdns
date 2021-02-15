@@ -14,7 +14,6 @@ pdnsPreseedEtc(){
 
 if [ -z "$SOURCE_ONLY" ]
 then
-	echo pre preseed etc 1>&2
 	pdnsPreseedEtc $*
 	return $?
 fi

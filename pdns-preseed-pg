@@ -1,7 +1,6 @@
 #!/bin/sh
 
 pdnsPreseedPg(){
-	echo preseed-pg 1>&2
 	seed="${1:-${PDNS_SEED_FILE:-/opt/docker-powerdns/psql.schema.sql}}"
 
 	# check that db is up AND prepare psql
@@ -15,17 +14,34 @@ pdnsPreseedPg(){
 	# TODO: create database?
 	# for now assume postgres operator has created it
 
-	echo "alter role $PGUSER set search_path = ${PGSCHEMA},\"\$user\",public" | psql --no-readline --echo-errors
+	if [ -z "$PGSCHEMA" ] # healthcheck checks other pg params
+	then
+		echo "no PGSCHEMA for preseed" 1>&2
+		return 1
+	fi
 
+	# needs db ownership, which we have not been passing in
+	#echo "alter database ${PGDATABASE} set search_path = ${PGSCHEMA}" 1>&2
+
+	echo "alter role $PGUSER set search_path = $PGSCHEMA;" | psql --no-readline --echo-errors
+	echo "alter user $PGUSER in $PGDATABASE set search_path = $PGSCHEMA;" | psql --no-readline --echo-errors
+	echo "select current_schema();" | psql --no-readline
+	
 	# TODO: test if we need to run or not
+	echo "select existing" 1>&2
+	echo "select exists (select from pg_tables where schemaname = '${PGSCHEMA}' and tablename = 'domains' );" | psql --no-readline --echo-errors --tuples-only 1>&2
+
 	# -1 -n -e
-	psql --single-transaction --no-readline --echo-errors -f "$seed"
-	return $?
+	psql -v ON_ERROR_STOP=1 --single-transaction --no-readline --echo-errors -f "$seed"
+	val="$?"
+	echo "seed status $val" 1>&2
+	echo "select exists (select from pg_tables where schemaname = '${PGSCHEMA}' and tablename = 'domains' );" | psql --no-readline --echo-errors 1>&2
+	echo p2
+	return $val
 }
 
 if [ -z "$SOURCE_ONLY" ]
 then
-	echo pre preseed pg 1>&2
 	pdnsPreseedPg $*
 	return $?
 fi

@@ -9,20 +9,7 @@ ENV REFRESHED_AT="2020-1-9" \
 	PDNS_ETC_FILE=/etc/powerdns/pdns.conf \
 	PDNS_KUBE_ETC_DIRS=/etc/powerdns/kube \
 	PDNS_CONFD_DIR=/etc/powerdns/conf.d \
-	PDNS_SEED_FILE=/opt/docker-powerdns/pgsql.schema.sql \
-	AUTOCONF=pgsql \
-	MYSQL_HOST="mysql" \
-	MYSQL_PORT="3306" \
-	MYSQL_USER="root" \
-	MYSQL_PASS="root" \
-	MYSQL_DB="pdns" \
-	MYSQL_DNSSEC="no" \
-	PGSQL_HOST="postgres" \
-	PGSQL_PORT="5432" \
-	PGSQL_USER="postgres" \
-	PGSQL_PASS="postgres" \
-	PGSQL_DB="pdns" \
-	SQLITE_DB="pdns.sqlite3"
+	PDNS_SEED_FILE=/opt/docker-powerdns/pgsql.schema.sql
 EXPOSE 53/tcp 53/udp 53000/tcp 80/tcp
 ENTRYPOINT ["pdns-entrypoint"]
 
