@@ -23,8 +23,10 @@ export TZ=UTC LANG=C LC_ALL=C
 for zone in $(echo "$PDNS_ZONES" | sed "s/,/ /g")
 do
 	echo zone $zone
-	pdnsutil -v create-zone $zone
-	pdnsutil -v increase-serial $zone
+	if pdnsutil -v create-zone $zone
+	then
+		pdnsutil -v increase-serial $zone
+	fi
 done
 
 echo status: run
