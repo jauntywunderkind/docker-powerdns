@@ -5,6 +5,7 @@ pdnsPreseedPg(){
 
 	# check that db is up AND prepare env for psql
 	if ! command -v pdnsHealthcheckPg
+	then
 		SOURCE_ONLY=1 . pdns-healthcheck-pg
 	fi
 	if ! pdnsHealthcheckPg
@@ -26,13 +27,17 @@ pdnsPreseedPg(){
 	#echo "alter database ${PGDATABASE} set search_path = ${PGSCHEMA}" 1>&2
 
     # TODO: surely this isn't really necessary?
-	echo "alter role $PGUSER set search_path = $PGSCHEMA;" | psql --no-readline --echo-errors
-	echo "alter user $PGUSER in database $PGDATABASE set search_path = $PGSCHEMA;" | psql --no-readline --echo-errors
+	(for userfile in ~/.pgenv.*/PGUSER
+	do
+		echo "alter role $(cat $userfile) set search_path = $PGSCHEMA;"
+		echo "alter user $(cat $userfile) in database $PGDATABASE set search_path = $PGSCHEMA;"
+	done) | psql -n -b
+	[ $? != 0 ] && echo "alter roles failed" 1>&2 && return 1
 
 	local seeded="$(echo "select exists (select from pg_tables where schemaname = '${PGSCHEMA}' and tablename = 'domains' );" | psql -n -t)"
 	if [ "${seeded## }" != t ]
 	then
-		psql -v ON_ERROR_STOP=1 -1 -n -f "$seed"
+		psql --no-readline -v ON_ERROR_STOP=1 -1 -n -f "$seed"
 		return $?
 	fi
 }

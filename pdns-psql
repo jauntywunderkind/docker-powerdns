@@ -29,6 +29,7 @@ pdnsPsqlKubeInit(){
 }
 
 if [ "${PDNS_PSQL_KUBE_INIT_READY:-0}" = 0 ]
+then
 	pdnsPsqlKubeInit
 fi
 
