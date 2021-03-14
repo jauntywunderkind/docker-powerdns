@@ -27,9 +27,12 @@ pdnsPsqlKubeInit(){
 	export PDNS_PSQL_KUBE_INIT_READY=1
 }
 
+if [ "${PDNS_PSQL_KUBE_INIT_READY:-0}" = 0 ]
+	pdnsPsqlKubeInit
+fi
+
 if [ -z "$SOURCE_ONLY" ]
 then
-	pdnsPsqlKubeInit
 	psql $*
 	return $?
 fi

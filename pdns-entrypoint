@@ -9,7 +9,7 @@ set -e
 # treat everything except -- as exec cmd
 [ "${1:0:2}" != "--" ] && exec "$@"
 
-SOURCE_ONLY=1 source pdns-script-helpers
+SOURCE_ONLY=1 . pdns-script-helpers
 pdnsExportKubeEtc ~/.pgenv.owner
 
 pdns-preseed-etc
