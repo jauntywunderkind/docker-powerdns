@@ -26,20 +26,29 @@ pdnsPreseedPg(){
 	# needs db ownership, which we have not been passing in
 	#echo "alter database ${PGDATABASE} set search_path = ${PGSCHEMA}" 1>&2
 
-    # TODO: surely this isn't really necessary?
-	(for userfile in ~/.pgenv.*/PGUSER
-	do
-		echo "alter role $(cat $userfile) set search_path = $PGSCHEMA;"
-		echo "alter user $(cat $userfile) in database $PGDATABASE set search_path = $PGSCHEMA;"
-	done) | psql -n -b
-	[ $? != 0 ] && echo "alter roles failed" 1>&2 && return 1
-
 	local seeded="$(echo "select exists (select from pg_tables where schemaname = '${PGSCHEMA}' and tablename = 'domains' );" | psql -n -t)"
 	if [ "${seeded## }" != t ]
 	then
 		psql --no-readline -v ON_ERROR_STOP=1 -1 -n -f "$seed"
-		return $?
+		[ $? != 0 ] && echo "preseed-pg schema failed" 1>&2 && return 1 || true
 	fi
+
+	# TODO: surely this isn't really necessary?
+	# should we do this on roles instead
+	(for userfile in ~/.pgenv.*/PGUSER
+	do
+		local role="$(cat $userfile | sed -e 's/_user$//')"
+		# TODO: pick a specific SCHEMA by trimming off PGDATABASE
+		case "$role" in
+			*writer)
+				echo "GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON ALL TABLES IN SCHEMA $PGSCHEMA TO $role;"
+				echo "GRANT EXECUTE ON ALL ROUTINES IN SCHEMA $PGSCHEMA TO $role;";;
+			*reader)
+				echo "GRANT SELECT ON ALL TABLES IN SCHEMA $PGSCHEMA TO $role;";;
+		esac
+	done) | psql -n -b
+
+	[ $? != 0 ] && echo "preseed alter roles failed" 1>&2 && return 1 || true
 }
 
 if [ -z "$SOURCE_ONLY" ]
