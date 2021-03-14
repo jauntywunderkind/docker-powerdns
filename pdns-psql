@@ -23,6 +23,8 @@ pdnsPsqlKubeInit(){
 	fi
 	chmod 0600 ~/.pgpass
 	unset PGPASSWORD
+
+	export PDNS_PSQL_KUBE_INIT_READY=1
 }
 
 if [ -z "$SOURCE_ONLY" ]

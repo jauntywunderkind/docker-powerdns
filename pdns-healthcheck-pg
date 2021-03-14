@@ -1,17 +1,17 @@
 #!/bin/sh
 
 pdnsHealthcheckPg(){
-	local sec="${1:-${PDNS_HEALTHCHECK_TIMEOUT:-60}}"
-
-	if [ -z "$PGUSER" ]
+	if [ "${PDNS_PSQL_KUBE_INIT_READY:-0}" = 0 ]
 	then
-		echo "no PGUSER for healthcheck" 1>&2
-		return 1
+		SOURCE_ONLY=1 . pdns-psql
 	fi
+
+	local sec="${1:-${PDNS_HEALTHCHECK_TIMEOUT:-60}}"
+	local pguser="$(cat /etc/powerdns/kube/*/webserver-port | tail -n1)"
 
 	while [ "$sec" -gt 0 ]
 	do
-		echo "SELECT 1" | pdns-psql >/dev/null
+		echo "SELECT 1" | psql >/dev/null
 		if [ $? -eq 0 ]
 		then
 			return 0
