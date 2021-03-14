@@ -1,9 +1,12 @@
 #!/bin/sh
 
 pdnsHealthcheckApi(){
-	local WEBSERVER_PORT="$(cat /etc/powerdns/kube/*/webserver-port | tail -n1)"
-	local WEBSERVER_API_KEY="$(cat /etc/powerdns/kube/*/api-key | tail -n1)"
-	curl --fail -s -H "X-API-Key: $WEBSERVER_API_KEY" http://localhost:$WEBSERVER_PORT/api/v1/servers/localhost
+	if ! command -v pdnsCurl
+	then
+		SOURCE_ONLY=1 . pdns-curl
+	fi
+
+	pdnsCurl '/api/v1/servers/localhost'
 	return $?
 }
 
