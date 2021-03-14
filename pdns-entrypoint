@@ -24,6 +24,7 @@ for zone in $(echo "$PDNS_ZONES" | sed "s/,/ /g")
 do
 	echo zone $zone
 	pdnsutil -v create-zone $zone
+	pdnsutil -v increase-serial $zone
 done
 
 echo status: run
