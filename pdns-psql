@@ -3,7 +3,7 @@
 pdnsPsqlKubeInit(){
 	if ! command -v pdnsExportKubeEtc
 	then
-		SOURCE_ONLY=1 source pdns-script-helpers
+		SOURCE_ONLY=1 . pdns-script-helpers
 	fi
 
 	# this will export env vars

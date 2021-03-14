@@ -1,9 +1,10 @@
 #!/bin/sh
 
 pdnsHealthcheckPg(){
-	if [ "${PDNS_PSQL_KUBE_INIT_READY:-0}" = 0 ]
+	if ! command -v pdnsPsqlKubeInit
 	then
 		SOURCE_ONLY=1 . pdns-psql
+		pdnsPsqlKubeInit
 	fi
 
 	local sec="${1:-${PDNS_HEALTHCHECK_TIMEOUT:-60}}"
