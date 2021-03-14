@@ -16,6 +16,7 @@ pdnsPsqlKubeInit(){
 	local line="$PGHOST:$PGPORT:$PGDATABASE:$PGUSER:$PGPASSWORD"
 	if ! grep -n -q -e "^$line" ~/.pgpass 2>/dev/null
 	then
+		# this will only fail if there isn't a pgpass definition already, for ANY password, and we have no password here.
 		[ -z "$PGPASSWORD" ] && echo "no PGPASSWORD" 1>&2 && return 1 || true
 
 		(echo "$line" && cat ~/.pgpass 2>/dev/null || true) > ~/.pgpass2

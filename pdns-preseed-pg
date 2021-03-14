@@ -3,8 +3,10 @@
 pdnsPreseedPg(){
 	seed="${1:-${PDNS_SEED_FILE:-/opt/docker-powerdns/psql.schema.sql}}"
 
-	# check that db is up AND prepare psql
-	! command -v pdnsHealthcheckPg && SOURCE_ONLY=1 source pdns-healthcheck-pg || true
+	# check that db is up AND prepare env for psql
+	if ! command -v pdnsHealthcheckPg
+		SOURCE_ONLY=1 . pdns-healthcheck-pg
+	fi
 	if ! pdnsHealthcheckPg
 	then
 		echo "pdnsPreseedPg failed" 1>&2
